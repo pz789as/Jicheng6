@@ -41,6 +41,7 @@ export default class DrawLayout extends Component {
     this._panResponder = {};
     this.drawWord = null;
     this.nowPos = 0;
+    this.touchLastPoint = null;
     for(var i=0;i<data.character.length;i++){
       var points = data.character[i].points;
       for(var k=0;k<points.length;k++){
@@ -75,6 +76,7 @@ export default class DrawLayout extends Component {
           x: e.nativeEvent.locationX,
           y: e.nativeEvent.locationY
         };
+        this.touchLastPoint = tp;
         var idx = this.drawWord.drawIdx;
         if (idx >= 0){
           var points = data.character[idx].orgPoints;
@@ -98,13 +100,26 @@ export default class DrawLayout extends Component {
         if (idx >= 0){
           var points = data.character[idx].orgPoints;
           if (this.nowPos - 1 < points.length){
-            var dis = DisP(tp, points[Math.min(this.nowPos, points.length-1)]);
-            if (dis < 10){
-              this.nowPos++;
-              this.drawWord.DrawingPecent(this.nowPos / points.length);
+            var tempD = parseInt(Math.floor(DisP(tp, this.touchLastPoint)));
+            if (tempD < 1) tempD = 1;
+            for(var i=0;i<tempD;i++){
+              var sp = {
+                x: this.touchLastPoint.x + (tp.x - this.touchLastPoint.x) * (i+1) / tempD,
+                y: this.touchLastPoint.y + (tp.y - this.touchLastPoint.y) * (i+1) / tempD
+              };
+              if (i==tempD-1){
+                sp.x = tp.x;
+                sp.y = tp.y;
+              }
+              var dis = DisP(tp, points[Math.min(this.nowPos, points.length-1)]);
+              if (dis < 10){
+                this.nowPos++;
+                this.drawWord.DrawingPecent(this.nowPos / points.length);
+              }
             }
           }
         }
+        this.touchLastPoint = tp;
       }
     }
   }
