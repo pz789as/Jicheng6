@@ -11,6 +11,7 @@ import {
   Text,
   View,
   PanResponder,
+  TouchableOpacity,
 } from 'react-native';
 
 import Dimensions from 'Dimensions';
@@ -132,11 +133,21 @@ export default class DrawLayout extends Component {
       }
     }
   }
-  
+  restartWrite(){
+    if (this.drawWord){
+      this.nowPos = 0;
+      this.drawWord.setRestart();
+    }
+  }
   render() {
     return (
       <View style={styles.container} {...this._panResponder.panHandlers}>
         <DrawWord ref={(r)=>{this.drawWord = r}} data={data}/>
+        <TouchableOpacity style={styles.restart} onPress={this.restartWrite.bind(this)}>
+          <Text style={styles.restartText}>
+            重新开始
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -148,6 +159,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF'
+  },
+  restart:{
+    position: 'absolute',
+    left: ScreenWidth/2,
+    bottom: 40,
+  },
+  restartText:{
+    fontSize: 30,
+    textAlign: 'center',
   },
   welcome: {
     fontSize: 20,

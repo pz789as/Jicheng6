@@ -89,7 +89,7 @@ export default class DrawWord extends Component {
       smoothBSPArr[this.startIdx].pos = 1;
       smoothBSPArr[this.endIdx].pos = 2;
       character[i].bspArr = smoothBSPArr;
-      character[i].backColor = 'red';
+      character[i].color = 'red';
 
       var loc2 = -1;
       var loc3 = -1;
@@ -171,7 +171,7 @@ export default class DrawWord extends Component {
       character[i].line = line;
 
       this.arrLine.push(
-        <Shape key={i} d={line} fill={character[i].backColor}/>
+        <Shape key={i} d={line} fill={character[i].color}/>
       );
     }
   }
@@ -282,6 +282,18 @@ export default class DrawWord extends Component {
       <Shape key={this.drawIdx} d={character[this.drawIdx].line} fill={this.tempDrawData.color}/>
     );
     this.tempDrawLine = null;
+    this.setUpdate();
+  }
+  setRestart(){
+    var character = this.data.character;
+    for(var i=0;i<character.length;i++){
+      this.arrLine[i] = (
+        <Shape key={i} d={character[i].line} fill={character[i].color}/>
+      );
+    }
+    this.tempDrawLine = null;
+    this.drawIdx = 0;
+    this.setBeginDraw();
     this.setUpdate();
   }
   componentDidMount() {
