@@ -41,6 +41,7 @@ export default class DrawWord extends Component {
     this.now_Step = 0;
     this.tempDrawData = {};
     this.tempDrawLine = null;
+    this.showPoints = [];
 
     this.loadWord();
     
@@ -158,6 +159,21 @@ export default class DrawWord extends Component {
       y = (upPoints[up_step - 1].y + downPoints[down_step - 1].y) / 2;
       orgPoints.push({'x': x, 'y': y});
       character[i].orgPoints = orgPoints;
+      // character[i].dashPoints = this.ResampleByLen(orgPoints, 10);
+      
+      // for(var k=0;k<character[i].dashPoints.length;k++){
+      //   this.showPoints.push(
+      //     <View style={{
+      //       position: 'absolute',
+      //       left: character[i].dashPoints[k].x - 3,
+      //       top: character[i].dashPoints[k].y - 3,
+      //       width: 6,
+      //       height: 6,
+      //       borderRadius: 3,
+      //       backgroundColor: 'blue'
+      //     }}/>
+      //   );
+      // }
 
       var line = Path();
       for(var j=0;j<character[i].bspArr.length;j++){
@@ -302,11 +318,57 @@ export default class DrawWord extends Component {
   }
   render() {
     return (
-      <Surface ref={'lineView'} width={ScreenWidth} height={ScreenHeight}>
-        {this.arrLine}
-        {this.tempDrawLine}
-      </Surface>
+      <View style={styles.container}>
+        <Surface ref={'lineView'} width={ScreenWidth} height={ScreenHeight}>
+          {this.arrLine}
+          {this.tempDrawLine}
+        </Surface>
+        {this.showPoints}
+      </View>
     );
+  }
+
+  Resample(points, normalizedPointsCount){
+    normalizedPointsCount = Math.max(3, normalizedPointsCount);
+    var intervalLength = this.PathLength(points) / (normalizedPointsCount-1);
+    var D = 0;
+    var q = {x:0, y:0};
+    var normalizedPoints = [];
+    normalizedPoints.push(points[0]);
+    var pointBuffer = [];
+    pointBuffer = pointBuffer.concat(points);
+    for(var i=1;i<pointBuffer.length;i++){
+      var a = pointBuffer[i-1];
+      var b = pointBuffer[i];
+      var d = DisP(a, b);
+      if ((D+d) > intervalLength){
+        q = LerpP(a, b, (intervalLength - D) / d);
+        normalizedPoints.push(q);
+        pointBuffer.splice(i, 0, q);
+        D = 0;
+      }else{
+        D += d;
+      }
+    }
+    if (normalizedPoints.length == normalizedPointsCount - 1){
+      normalizedPoints.push(pointBuffer[pointBuffer.length - 1]);
+    }
+    return normalizedPoints;
+  }
+  ResampleByLen(points, len){
+    len = Math.max(2, len);
+    var normalizedPointsCount = parseInt(this.PathLength(points) / len);
+    if (normalizedPointsCount <= 0) {
+      return null;
+    }
+    return this.Resample(points, normalizedPointsCount);
+  }
+  PathLength(points){
+    var d=0;
+    for(var i=1;i<points.length;i++){
+      d += DisP(points[i-1], points[i]);
+    }
+    return d;
   }
 }
 

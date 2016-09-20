@@ -34,6 +34,22 @@ let DisP = function(p1, p2){
   return Dis(p1.x - p2.x, p1.y - p2.y);
 };
 global.DisP = global.DisP || DisP;
+let Lerp = function(a, b, f){
+  if (f <= 0) return a;
+  if (f >= 1) return b;
+  return a + (b - a) * f;
+}
+global.Lerp = global.Lerp || Lerp;
+let LerpP = function(a, b, f){
+  if (f <= 0) return a;
+  if (f >= 1) return b;
+  return {
+    'x': Lerp(a.x, b.x, f),
+    'y': Lerp(a.y, b.y, f)
+  };
+}
+global.LerpP = global.LerpP || LerpP; 
+
 
 export default class DrawLayout extends Component {
   constructor(props){
@@ -81,7 +97,7 @@ export default class DrawLayout extends Component {
         if (idx >= 0){
           var points = data.character[idx].orgPoints;
           var dis = DisP(tp, data.character[idx].orgPoints[Math.min(this.nowPos, points.length-1)]);
-          if (dis < 10){
+          if (dis < 15){
             this.nowPos++;
             this.drawWord.DrawingPecent(this.nowPos / points.length);
           }
@@ -100,26 +116,27 @@ export default class DrawLayout extends Component {
         if (idx >= 0){
           var points = data.character[idx].orgPoints;
           if (this.nowPos - 1 < points.length){
-            var tempD = parseInt(Math.floor(DisP(tp, this.touchLastPoint)));
-            if (tempD < 1) tempD = 1;
-            for(var i=0;i<tempD;i++){
-              var sp = {
-                x: this.touchLastPoint.x + (tp.x - this.touchLastPoint.x) * (i+1) / tempD,
-                y: this.touchLastPoint.y + (tp.y - this.touchLastPoint.y) * (i+1) / tempD
-              };
-              if (i==tempD-1){
-                sp.x = tp.x;
-                sp.y = tp.y;
+            var tempD = DisP(tp, this.touchLastPoint);
+            if (tempD >= 1){
+              var count = Math.max(1, parseInt(tempD / 4));
+              var oldPos = this.nowPos;
+              for(var i=0;i<count;i++){
+                var sp = LerpP(this.touchLastPoint, tp, (i+1) / count);
+                if (i==tempD-1){
+                  sp = tp;
+                }
+                var dis = DisP(tp, points[Math.min(this.nowPos, points.length-1)]);
+                if (dis < 25){
+                  this.nowPos++;
+                }
               }
-              var dis = DisP(tp, points[Math.min(this.nowPos, points.length-1)]);
-              if (dis < 10){
-                this.nowPos++;
+              if (this.nowPos != oldPos){
                 this.drawWord.DrawingPecent(this.nowPos / points.length);
               }
             }
+            this.touchLastPoint = tp;
           }
         }
-        this.touchLastPoint = tp;
       }
     }
   }
