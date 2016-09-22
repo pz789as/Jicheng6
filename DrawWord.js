@@ -90,7 +90,7 @@ export default class DrawWord extends Component {
       smoothBSPArr[this.startIdx].pos = 1;
       smoothBSPArr[this.endIdx].pos = 2;
       character[i].bspArr = smoothBSPArr;
-      character[i].color = 'red';
+      character[i].color = 'rgb(255,0,0)';
 
       var loc2 = -1;
       var loc3 = -1;
@@ -286,7 +286,7 @@ export default class DrawWord extends Component {
         line.lineTo(point.x, point.y);
       }
     }
-    this.tempDrawData.color = 'black';
+    this.tempDrawData.color = 'rgb(0,0,0)';
     this.tempDrawLine = (
       <Shape d={line} fill={this.tempDrawData.color}/>
     );
@@ -310,16 +310,60 @@ export default class DrawWord extends Component {
     this.tempDrawLine = null;
     this.drawIdx = 0;
     this.setBeginDraw();
+    
+    if (this.blnBlink){
+      this.stopBlink();
+    }else{
+      this.setUpdate();
+    }
+  }
+  stopBlink(){
+    this.blnBlink = false;
+    var character = this.data.character;
+    var color = character[this.blinkIdx].color;
+    this.arrLine[this.blinkIdx] = (
+      <Shape key={this.blinkIdx} d={character[this.blinkIdx].line} fill={color}/>
+    );
+    this._blinkTime && clearTimeout(this._blinkTime);
     this.setUpdate();
+  }
+  setStrokeBlink(){
+    if (!this.blnBlink){
+      this.blnBlink = true;
+      this.blinkIdx = this.drawIdx;
+      this.blinkFrame = 0;
+      this.blinkUpdate();
+    }
+  }
+  blinkUpdate(){
+    if (this.blnBlink){
+      this.blinkFrame++;
+      var character = this.data.character;
+      var color =  this.blinkFrame % 2 == 0 ? 'rgb(155,0,0)' : 'rgb(255,0,0)';
+      this.arrLine[this.blinkIdx] = (
+        <Shape key={this.blinkIdx} d={character[this.blinkIdx].line} fill={color}/>
+      );
+      this.setUpdate();
+    
+      if (this.blinkFrame <= 6){
+        this._blinkTime = setTimeout(this.blinkUpdate.bind(this), 100);
+      }else{
+        this.stopBlink();
+      }
+    }
   }
   componentDidMount() {
     this.drawIdx = 0;
     this.setBeginDraw();
   }
+  componentWillUnmount() {
+    this._blinkTime && clearTimeout(this._blinkTime);
+  }
+  
   render() {
     return (
-      <View style={styles.container}>
-        <Surface ref={'lineView'} width={ScreenWidth} height={ScreenHeight}>
+      <View style={[styles.container, this.props.style? this.props.style : {}]}>
+        <Surface ref={'lineView'} width={curWidth} height={curWidth}>
           {this.arrLine}
           {this.tempDrawLine}
         </Surface>
@@ -374,7 +418,6 @@ export default class DrawWord extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',

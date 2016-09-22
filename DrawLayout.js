@@ -12,6 +12,7 @@ import {
   View,
   PanResponder,
   TouchableOpacity,
+  StatusBar,
 } from 'react-native';
 
 import Dimensions from 'Dimensions';
@@ -19,8 +20,16 @@ let ScreenWidth = Dimensions.get('window').width;
 global.ScreenWidth = global.ScreenWidth || ScreenWidth;
 let ScreenHeight = Dimensions.get('window').height;
 global.ScreenHeight = global.ScreenHeight || ScreenHeight;
+console.log(ScreenWidth, ScreenHeight);
+
 let curWidth = Math.min(ScreenWidth, ScreenHeight);
+global.curWidth = global.curWidth || curWidth;
 let scaleWidth = curWidth / 400;
+global.scaleWidth = global.scaleWidth || scaleWidth;
+let minUnit = ScreenWidth / 100;
+global.minUnit = global.minUnit || minUnit;
+let unitDisSt = curWidth / 25;
+let unitDisMv = curWidth / 15;
 
 import DrawWord from './DrawWord';
 
@@ -48,8 +57,13 @@ let LerpP = function(a, b, f){
     'y': Lerp(a.y, b.y, f)
   };
 }
-global.LerpP = global.LerpP || LerpP; 
+global.LerpP = global.LerpP || LerpP;
 
+let cv = {
+  status_norm: 0,
+  status_auto: 1,
+  status_pause: 2,
+};
 
 export default class DrawLayout extends Component {
   constructor(props){
@@ -58,6 +72,7 @@ export default class DrawLayout extends Component {
     this.drawWord = null;
     this.nowPos = 0;
     this.touchLastPoint = null;
+    this.status = cv.status_norm;
     for(var i=0;i<data.character.length;i++){
       var points = data.character[i].points;
       for(var k=0;k<points.length;k++){
@@ -65,6 +80,15 @@ export default class DrawLayout extends Component {
         points[k].y = points[k].y * scaleWidth;
       }
     }
+    this.wrongCount = 0;
+    this.state={
+      blnUpdate: false,
+    };
+  }
+  setUpdate(){
+    this.setState({
+      blnUpdate: !this.state.blnUpdate,
+    });
   }
   componentWillMount() {
     this._panResponder = PanResponder.create({
@@ -77,12 +101,22 @@ export default class DrawLayout extends Component {
     });
   }
   componentDidMount() {
-    
+    this._autoUpdate = setInterval(this.autoUpdate.bind(this), 1/60);
   }
+  componentWillUnmount() {
+    this._autoUpdate && clearInterval(this._autoUpdate);
+  }
+  
   onStartShouldSetPanResponder(e, g){
+    if (this.status == cv.status_auto || this.status == cv.status_pause){
+      return false;
+    }
     return true;
   }
   onMoveShouldSetPanResponder(e, g){
+    if (this.status == cv.status_auto || this.status == cv.status_pause){
+      return false;
+    }
     return true;
   }
   onPanResponderGrant(e, g){
@@ -97,7 +131,7 @@ export default class DrawLayout extends Component {
         if (idx >= 0){
           var points = data.character[idx].orgPoints;
           var dis = DisP(tp, data.character[idx].orgPoints[Math.min(this.nowPos, points.length-1)]);
-          if (dis < 15){
+          if (dis < unitDisSt){
             this.nowPos++;
             this.drawWord.DrawingPecent(this.nowPos / points.length);
           }
@@ -126,7 +160,7 @@ export default class DrawLayout extends Component {
                   sp = tp;
                 }
                 var dis = DisP(tp, points[Math.min(this.nowPos, points.length-1)]);
-                if (dis < 25){
+                if (dis < unitDisMv){
                   this.nowPos++;
                 }
               }
@@ -154,32 +188,104 @@ export default class DrawLayout extends Component {
         if (this.nowPos >= points.length){
           if (this.drawWord.drawIdx < data.character.length - 1){
             console.log('学习下一笔');
-            this.drawWord.setEndDraw();
-            this.drawWord.drawIdx++;
-            this.nowPos = 0;
-            this.drawWord.setBeginDraw();
+            this.setDrawNext();
           }else{
             console.log('书写完毕!');
+          }
+        }else if (this.nowPos == 0){
+          this.wrongCount ++;
+          if (this.wrongCount == 3){
+            this.drawWord.setStrokeBlink();
+            this.wrongCount = 0;
           }
         }
       }
     }
   }
+  setDrawNext(){
+    this.drawWord.setEndDraw();
+    this.drawWord.drawIdx++;
+    this.nowPos = 0;
+    this.drawWord.setBeginDraw();
+    this.wrongCount = 0;
+  }
   restartWrite(){
+    if (this.status == cv.status_auto || this.status == cv.status_pause){
+      this.autoWriteStop();
+    }
     if (this.drawWord){
       this.nowPos = 0;
       this.drawWord.setRestart();
+      this.wrongCount = 0;
+    }
+  }
+  autoWriteStop(){
+    this.status = cv.status_norm;
+    this.setUpdate();
+  }
+  autoWrite(){
+    if (this.status == cv.status_norm){
+      this.wrongCount = 0;
+      this.status = cv.status_auto;
+      this.nowPos = 0;
+      if (this.drawWord){
+        this.drawWord.setRestart();
+      }
+      this.setUpdate();
+    }else if (this.status == cv.status_auto){
+      this.status = cv.status_pause;
+      this.setUpdate();
+    }else if (this.status == cv.status_pause){
+      this.status = cv.status_auto;
+      this.setUpdate();
+    }
+  }
+  autoUpdate(){
+    if (this.status == cv.status_auto){
+      if (this.drawWord){
+        var idx = this.drawWord.drawIdx;
+        if (idx>=0){
+          var points = data.character[idx].orgPoints;
+          if (this.nowPos >= points.length + 10){
+            if (this.drawWord.drawIdx < data.character.length - 1){
+              this.setDrawNext();
+            }else{
+              this.status = cv.status_norm;
+              this.setUpdate();
+            }
+          }else{
+            this.nowPos += 0.25;
+            this.drawWord.DrawingPecent(this.nowPos / points.length);
+          }
+        }
+      }
+    }
+  }
+  getAutoText(){
+    if (this.status == cv.status_auto){
+      return '暂停书写';
+    }else if (this.status == cv.status_norm){
+      return '自动书写';
+    }else if (this.status == cv.status_pause){
+      return '继续书写';
     }
   }
   render() {
     return (
       <View style={styles.container} {...this._panResponder.panHandlers}>
-        <DrawWord ref={(r)=>{this.drawWord = r}} data={data}/>
-        <TouchableOpacity style={styles.restart} onPress={this.restartWrite.bind(this)}>
-          <Text style={styles.restartText}>
-            重新开始
-          </Text>
-        </TouchableOpacity>
+        <DrawWord style={styles.upView} ref={(r)=>{this.drawWord = r}} data={data}/>
+        <View style={styles.downView}>
+          <TouchableOpacity style={styles.autoWriteBtn} onPress={this.autoWrite.bind(this)}>
+            <Text style={styles.autoWriteText}>
+              {this.getAutoText()}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.restartBtn} onPress={this.restartWrite.bind(this)}>
+            <Text style={styles.restartText}>
+              重新开始
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -189,26 +295,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#F5FCFF'
   },
-  restart:{
-    position: 'absolute',
-    left: ScreenWidth/2,
-    bottom: 40,
+  upView:{
+    width: curWidth,
+    height: curWidth,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#CCC'
+  },
+  downView: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: minUnit * 5,
+  },
+  autoWriteBtn:{
+    marginBottom: minUnit * 5,
+    marginLeft: minUnit * 5,
+  },
+  autoWriteText:{
+    fontSize: minUnit * 6,
+    textAlign: 'center',
+  },
+  restartBtn:{
+    marginBottom: minUnit * 5,
+    marginRight: minUnit * 5,
   },
   restartText:{
-    fontSize: 30,
+    fontSize: minUnit * 6,
     textAlign: 'center',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+  }
 });
