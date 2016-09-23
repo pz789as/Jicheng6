@@ -305,6 +305,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CCC'
   },
   downView: {
+    width: ScreenWidth,
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: minUnit * 5,
