@@ -12,14 +12,13 @@ import {
   View,
 } from 'react-native';
 
-import DrawLayout from './DrawLayout';
-import XzwLayout from './XzwLayout';
+import DrawLayout from './DrawLayout1';
 
 class Jicheng6 extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <XzwLayout/>
+        <DrawLayout />
       </View>
     );
   }
