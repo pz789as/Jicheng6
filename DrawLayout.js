@@ -58,6 +58,51 @@ let LerpP = function(a, b, f){
   };
 }
 global.LerpP = global.LerpP || LerpP;
+var PathLength = function(points){
+  var d=0;
+  for(var i=1;i<points.length;i++){
+    d += DisP(points[i-1], points[i]);
+  }
+  return d;
+};
+global.PathLength = global.PathLength || PathLength;
+var Resample = function(points, normalizedPointsCount){
+  normalizedPointsCount = Math.max(3, normalizedPointsCount);
+  var intervalLength = PathLength(points) / (normalizedPointsCount-1);
+  var D = 0;
+  var q = {x:0, y:0};
+  var normalizedPoints = [];
+  normalizedPoints.push(points[0]);
+  var pointBuffer = [];
+  pointBuffer = pointBuffer.concat(points);
+  for(var i=1;i<pointBuffer.length;i++){
+    var a = pointBuffer[i-1];
+    var b = pointBuffer[i];
+    var d = DisP(a, b);
+    if ((D+d) > intervalLength){
+      q = LerpP(a, b, (intervalLength - D) / d);
+      normalizedPoints.push(q);
+      pointBuffer.splice(i, 0, q);
+      D = 0;
+    }else{
+      D += d;
+    }
+  }
+  if (normalizedPoints.length == normalizedPointsCount - 1){
+    normalizedPoints.push(pointBuffer[pointBuffer.length - 1]);
+  }
+  return normalizedPoints;
+};
+global.Resample = global.Resample || Resample;
+var ResampleByLen = function(points, len){
+  len = Math.max(2, len);
+  var normalizedPointsCount = parseInt(PathLength(points) / len);
+  if (normalizedPointsCount <= 0) {
+    return null;
+  }
+  return Resample(points, normalizedPointsCount);
+};
+global.ResampleByLen = global.ResampleByLen || ResampleByLen;
 
 let cv = {
   status_norm: 0,

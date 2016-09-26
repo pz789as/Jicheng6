@@ -72,6 +72,51 @@ let LerpP = function(a, b, f){
   };
 }
 global.LerpP = global.LerpP || LerpP;
+var PathLength = function(points){
+  var d=0;
+  for(var i=1;i<points.length;i++){
+    d += DisP(points[i-1], points[i]);
+  }
+  return d;
+};
+global.PathLength = global.PathLength || PathLength;
+var Resample = function(points, normalizedPointsCount){
+  normalizedPointsCount = Math.max(3, normalizedPointsCount);
+  var intervalLength = PathLength(points) / (normalizedPointsCount-1);
+  var D = 0;
+  var q = {x:0, y:0};
+  var normalizedPoints = [];
+  normalizedPoints.push(points[0]);
+  var pointBuffer = [];
+  pointBuffer = pointBuffer.concat(points);
+  for(var i=1;i<pointBuffer.length;i++){
+    var a = pointBuffer[i-1];
+    var b = pointBuffer[i];
+    var d = DisP(a, b);
+    if ((D+d) > intervalLength){
+      q = LerpP(a, b, (intervalLength - D) / d);
+      normalizedPoints.push(q);
+      pointBuffer.splice(i, 0, q);
+      D = 0;
+    }else{
+      D += d;
+    }
+  }
+  if (normalizedPoints.length == normalizedPointsCount - 1){
+    normalizedPoints.push(pointBuffer[pointBuffer.length - 1]);
+  }
+  return normalizedPoints;
+};
+global.Resample = global.Resample || Resample;
+var ResampleByLen = function(points, len){
+  len = Math.max(2, len);
+  var normalizedPointsCount = parseInt(PathLength(points) / len);
+  if (normalizedPointsCount <= 0) {
+    return null;
+  }
+  return Resample(points, normalizedPointsCount);
+};
+global.ResampleByLen = global.ResampleByLen || ResampleByLen;
 
 let cv = {
   status_norm: 0,
@@ -95,7 +140,11 @@ export default class DrawLayout extends Component {
 
     this.mousePosition = null;
     this.lastMousePostion = null;
-    this.listUsedPoint = [];
+    this.arrOrgPoint = [];
+    this.arrUsedPoint = [];
+    this.arrShowPoint = [];
+    this.nowR = 5;
+    this.blnCanDraw = false;
     
     this.status = cv.status_norm;
     for(var i=0;i<data.character.length;i++){
@@ -151,7 +200,7 @@ export default class DrawLayout extends Component {
         y: e.nativeEvent.locationY
       };
       this.ResetDrawPoint();
-      this.AddUsePoint(this.mousePosition);
+      this.AddUsePoint(this.mousePosition, cv.touch_begin);
     }
   }
   onPanResponderMove(e, g){
@@ -160,7 +209,10 @@ export default class DrawLayout extends Component {
         x: e.nativeEvent.locationX,
         y: e.nativeEvent.locationY
       };
-      this.AddUsePoint(this.mousePosition);
+      var s = DisP(this.mousePosition, this.lastMousePostion);
+      if (s >= 1){
+        this.AddUsePoint(this.mousePosition, cv.touch_move);
+      }
     }
   }
   onPanResponderRelease(e, g){
@@ -170,25 +222,121 @@ export default class DrawLayout extends Component {
     this.endPanResponder(e, g);
   }
   endPanResponder(e, g){
-    if (this.blnCanDraw){
-      this.mousePosition = {
-        x: e.nativeEvent.locationX,
-        y: e.nativeEvent.locationY
-      };
-      this.AddUsePoint(this.mousePosition);
-    }
+    this.mousePosition = {
+      x: e.nativeEvent.locationX,
+      y: e.nativeEvent.locationY
+    };
+    this.AddUsePoint(this.mousePosition, cv.touch_ended);
   }
   ResetDrawPoint(){
-    this.listUsedPoint = [];
+    this.arrOrgPoint = [];
+    this.arrUsedPoint = [];
+    this.arrShowPoint = [];
+    this.nowR = 5;
+    this.blnCanDraw = false;
   }
-  AddUsePoint(pos, scale){
-    var d = new Path();
-    d.moveTo(pos.x, pos.y);
-    d.arc(0, 4, 4).arc(0, -4, 4).close();
-    this.listUsedPoint.push(
-      <Shape d={d} fill={'blue'}/>
-    );
+  AddUsePoint(pos, kind){
+    if (kind == cv.touch_begin){
+      this.lastMousePostion = this.mousePosition;
+      this.arrOrgPoint.push(pos);
+      this.AddSinglePoint(pos, this.nowR);
+      this.blnCanDraw = true;
+    }else if (this.blnCanDraw){
+      this.arrOrgPoint.push(pos);
+      if (this.arrOrgPoint.length > 2){
+        var listTemp = [];
+        listTemp.push(this.arrOrgPoint[this.arrOrgPoint.length - 3]);
+        listTemp.push(this.arrOrgPoint[this.arrOrgPoint.length - 2]);
+        listTemp.push(this.arrOrgPoint[this.arrOrgPoint.length - 1]);
+        listTemp = this.BSpline2Smooth1(listTemp, false);
+        for(var i=0;i<listTemp.length;i++){
+          this.AddSinglePoint(listTemp[i], this.nowR);
+        }
+        if (this.arrUsedPoint.length > 600){
+          this.blnCanDraw = false;
+        }
+      }else{
+        var count = DisP(this.lastMousePostion, pos);
+        if (count > 1){
+          var c = Math.ceil(count);
+          for(var i=0; i < c; i++){
+            if (i == c - 1){
+              this.AddSinglePoint(pos, this.nowR);
+            }else{
+              var p = LerpP(this.lastMousePostion, pos, (i + 1) / c);
+              this.AddSinglePoint(p, this.nowR);
+            }
+          }
+        }else {
+          this.AddSinglePoint(pos, this.nowR);
+        }
+      }
+    }
+    this.lastMousePostion = this.mousePosition;
     this.setUpdate();
+  }
+  AddSinglePoint(pos, scale){
+    pos.r = scale;
+    var d = new Path();
+    d.moveTo(pos.x, pos.y - pos.r);
+    d.arc(0, pos.r*2, pos.r).arc(0, -pos.r*2, pos.r).close();
+    pos.d = d;
+    pos.color = 'rgb(0,0,255)';
+    pos.time = 0;
+    this.arrUsedPoint.push(pos);
+    this.arrShowPoint.push(
+      <Shape d={pos.d} fill={pos.color}/>
+    );
+  }
+  BSpline2Smooth1(list, blnSet){
+    var aList = [];
+    aList = aList.concat(list);
+    if (blnSet){
+      aList.unshift(list[0]);
+      aList.push(list[list.length - 1]);
+    }
+    var tList = [];
+    var loc1 = 1;
+    var start = {}, end = {};
+    while(loc1 < aList.length - 1){
+      start = aList[loc1 - 1];
+      end = aList[loc1 + 1];
+      tList.push(LerpP(aList[loc1-1], aList[loc1], 0.5));
+      this.BSpline2Smooth2(tList, start, aList[loc1], end);
+      tList.push(LerpP(aList[loc1], aList[loc1+1], 0.5));
+      ++loc1;
+    }
+    var rl = ResampleByLen(tList, 2);
+    if (rl != null){
+      return rl
+    }else{
+      return tList;
+    }
+  }
+  BSpline2Smooth2(list, arg1, arg2, arg3){
+    var locx = [];
+    var locy = [];
+    locx.push((arg1.x + arg2.x) * 0.5);
+    locx.push(arg2.x - arg1.x);
+    locx.push((arg1.x - 2*arg2.x + arg3.x) * 0.5);
+    locy.push((arg1.y + arg2.y) * 0.5);
+    locy.push(arg2.y - arg1.y);
+    locy.push((arg1.y - 2*arg2.y + arg3.y) * 0.5);
+    var loc6 = parseInt(this.CountDistance(arg1, arg3));
+    var loc7 = 0;
+    var loc8 = 0;
+    while(loc7 < loc6){
+      loc8 = loc7 / loc6;
+      var loc5 = {
+        x: locx[0] + loc8 * (locx[1] + locx[2] * loc8),
+        y: locy[0] + loc8 * (locy[1] + locy[2] * loc8)
+      };
+      list.push(loc5);
+      loc7++;
+    }
+  }
+  CountDistance(arg1, arg2){
+    return Math.round(Math.sqrt(Math.pow(arg1.x - arg2.x, 2) + Math.pow(arg1.y - arg2.y, 2)));
   }
   SetEndPoint(bln){
 
@@ -202,7 +350,7 @@ export default class DrawLayout extends Component {
         <DrawWord style={styles.upView} ref={(r)=>{this.drawWord = r}} data={data}/>
         <View style={styles.mouseView}>
           <Surface ref={'lineView'} width={ScreenWidth} height={ScreenHeight}>
-            {this.listUsedPoint}
+            {this.arrShowPoint}
           </Surface>
         </View>
       </View>
