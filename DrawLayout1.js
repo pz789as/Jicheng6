@@ -31,7 +31,7 @@ const {
 var data = require('./data/瞅.json');
 import Utils from './DrawUtils';
 import DrawWord from './DrawWord1';
-import DrawTouch from './DrawTouch';
+import DrawTouch from './DrawTouch1';
 
 let cv = {
   status_norm: 0,
@@ -58,6 +58,10 @@ export default class DrawLayout extends Component {
     this.nowR = 10;
     this.blnCanDraw = false;
     this.showPoints = null;
+
+    this.arrGesture = [];
+    this.InitGesture();
+    this.InitWordInfo();
     
     this.status = cv.status_norm;
     for(var i=0;i<data.character.length;i++){
@@ -76,6 +80,54 @@ export default class DrawLayout extends Component {
     this.setState({
       blnUpdate: !this.state.blnUpdate,
     });
+  }
+  InitGesture(){
+    var bezierDataStr = require('./data/Gesture.json');
+    for(var i=0;i<bezierDataStr.length;i++){
+      var strTemp = bezierDataStr[i];
+      var strArr0 = strTemp.split('|');
+      var listPoint = [];
+      if (strArr0.length > 0){
+        var strArr1 = strArr0[0].split('_');
+        for(var p=0;p<strArr1.length;p++){
+          var strArr2 = strArr1[p].split(',');
+          listPoint.push({
+            x: parseFloat(strArr2[0]),
+            y: parseFloat(strArr2[1]),
+          });
+        }
+      }
+      this.arrGesture.push(listPoint);
+    }
+  }
+  InitWordInfo(){
+    var strArr0 = require('./data/DataInfo.json');
+    var strArr1 = require('./data/DrawInfo.json');
+    var strArr2 = require('./data/OrderInfo.json');
+    this.arrDataInfo = [];
+    for(var i=0;i<strArr0.length;i++){
+      var wi = {};
+      var arr = strArr0[i].split('\t');
+      wi.strHZ = arr[0];
+      wi.strUnic = arr[1];
+      wi.strPinyin = arr[2];
+      wi.strHSK = arr[3];
+      wi.strEnglish = arr[5].replace(';', '\n');
+      wi.iCC = parseInt(arr[6]);
+      wi.arrBJ = [];
+      wi.arrBJUnic = [];
+      wi.arrBJYI = [];
+      wi.arrBJYIN = [];
+      wi.iBJSL = 0;
+      for(var m=7;m<arr.length;){
+        wi.arrBJ[wi.iBJSL] = arr[i];
+        wi.arrBJUnic[wi.iBJSL] = arr[i+1];
+        wi.arrBJYI[wi.iBJSL] = parseInt(arr[i+2]);
+        wi.arrBJYIN[wi.iBJSL] = parseInt(arr[i+3]);
+        wi.iBJSL++;
+        i+=4;
+      }
+    }
   }
   componentWillMount() {
     this._panResponder = PanResponder.create({
@@ -191,6 +243,9 @@ export default class DrawLayout extends Component {
           this.AddSinglePoint(pos, this.nowR);
         }
       }
+      if (kind == cv.touch_ended){
+        this.CompareBihua();
+      }
     }
     this.lastMousePostion = this.mousePosition;
     this.drawTouch && this.drawTouch.setPoints(this.showPoints);
@@ -255,8 +310,19 @@ export default class DrawLayout extends Component {
       loc7++;
     }
   }
-  SetEndPoint(bln){
-
+  CompareBihua(){
+    if (this.arrOrgPoint.length > 2){
+      var showNum = 0;
+      for(var i=0;i<data.character.length;i++){
+        var ch = data.character[i];
+        if (ch.isShow){
+          showNum++;
+          continue;
+        }else{
+          // var cValue = Utils.CompareGestrue(this.arrOrgPoint, )
+        }
+      }
+    }
   }
   autoUpdate(){
     

@@ -57,9 +57,10 @@ export default class DrawWord extends Component {
   loadWord(){
     this.drawIdx = -1;
     var character = this.data.character;
-    console.log(character.length);
+    console.log("笔画数：" + character.length);
     this.arrLine = [];
     for(var i=0;i<character.length;i++){
+      character[i].isShow = false;
       var points = character[i].points;
       for(var k=0;k<points.length;k++){
         if (points[k].pos == 1){
@@ -306,6 +307,7 @@ export default class DrawWord extends Component {
       this.arrLine[i] = (
         <Shape key={i} d={character[i].line} fill={character[i].color}/>
       );
+      character[i].isShow = false;
     }
     this.tempDrawLine = null;
     this.drawIdx = 0;
