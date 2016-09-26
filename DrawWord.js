@@ -6,9 +6,7 @@
 
 import React, { Component } from 'react';
 import {
-  AppRegistry,
   StyleSheet,
-  Text,
   View,
   ART,
 } from 'react-native';
@@ -25,6 +23,8 @@ const {
   // Text,
   ClippingRectangle,
 } = ART;
+
+import Utils from './DrawUtils';
 
 export default class DrawWord extends Component {
   constructor(props){
@@ -216,18 +216,18 @@ export default class DrawWord extends Component {
     loc5.org = arg3.org;
     arg1.push(loc5);
 
-    var dis = DisP(loc5, this.startPoint);
+    var dis = Utils.DisP(loc5, this.startPoint);
     if (dis < this.minDisStart) {
       this.minDisStart = dis;
       this.startIdx = arg1.length - 1;
     }
-    dis = DisP(loc5, this.endPoint);
+    dis = Utils.DisP(loc5, this.endPoint);
     if (dis < this.minDisEnd) {
       this.minDisEnd = dis;
       this.endIdx = arg1.length - 1;
     }
 
-    var loc6 = parseInt(this.CountDistance(arg3, arg4));
+    var loc6 = parseInt(Utils.CountDistance(arg3, arg4));
     var loc7 = 1;
     while (loc7 < loc6) {
       loc8 = loc7 / loc6;
@@ -243,20 +243,17 @@ export default class DrawWord extends Component {
       arg1.push(loc5);
       ++loc7;
 
-      dis = DisP(loc5, this.startPoint);
+      dis = Utils.DisP(loc5, this.startPoint);
       if (dis < this.minDisStart) {
         this.minDisStart = dis;
         this.startIdx = arg1.length - 1;
       }
-      dis = DisP(loc5, this.endPoint);
+      dis = Utils.DisP(loc5, this.endPoint);
       if (dis < this.minDisEnd) {
         this.minDisEnd = dis;
         this.endIdx = arg1.length - 1;
       }
     }
-  }
-  CountDistance(arg1, arg2){
-    return Math.round(Math.sqrt(Math.pow(arg1.x - arg2.x, 2) + Math.pow(arg1.y - arg2.y, 2)));
   }
   setBeginDraw(){
     var bh = this.data.character[this.drawIdx];
@@ -378,15 +375,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
   },
 });

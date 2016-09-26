@@ -6,9 +6,7 @@
 
 import React, { Component } from 'react';
 import {
-  AppRegistry,
   StyleSheet,
-  Text,
   View,
   ART,
 } from 'react-native';
@@ -25,6 +23,8 @@ const {
   // Text,
   ClippingRectangle,
 } = ART;
+
+import Utils from './DrawUtils';
 
 export default class DrawWord extends Component {
   constructor(props){
@@ -216,12 +216,12 @@ export default class DrawWord extends Component {
     loc5.org = arg3.org;
     arg1.push(loc5);
 
-    var dis = DisP(loc5, this.startPoint);
+    var dis = Utils.DisP(loc5, this.startPoint);
     if (dis < this.minDisStart) {
       this.minDisStart = dis;
       this.startIdx = arg1.length - 1;
     }
-    dis = DisP(loc5, this.endPoint);
+    dis = Utils.DisP(loc5, this.endPoint);
     if (dis < this.minDisEnd) {
       this.minDisEnd = dis;
       this.endIdx = arg1.length - 1;
@@ -243,12 +243,12 @@ export default class DrawWord extends Component {
       arg1.push(loc5);
       ++loc7;
 
-      dis = DisP(loc5, this.startPoint);
+      dis = Utils.DisP(loc5, this.startPoint);
       if (dis < this.minDisStart) {
         this.minDisStart = dis;
         this.startIdx = arg1.length - 1;
       }
-      dis = DisP(loc5, this.endPoint);
+      dis = Utils.DisP(loc5, this.endPoint);
       if (dis < this.minDisEnd) {
         this.minDisEnd = dis;
         this.endIdx = arg1.length - 1;
@@ -378,15 +378,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
   },
 });

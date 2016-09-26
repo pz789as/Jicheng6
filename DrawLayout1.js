@@ -6,7 +6,6 @@
 
 import React, { Component } from 'react';
 import {
-  AppRegistry,
   StyleSheet,
   Text,
   View,
@@ -29,94 +28,10 @@ const {
   ClippingRectangle,
 } = ART;
 
-import Dimensions from 'Dimensions';
-let ScreenWidth = Dimensions.get('window').width;
-global.ScreenWidth = global.ScreenWidth || ScreenWidth;
-let ScreenHeight = Dimensions.get('window').height;
-global.ScreenHeight = global.ScreenHeight || ScreenHeight;
-console.log(ScreenWidth, ScreenHeight);
-
-let curWidth = Math.min(ScreenWidth, ScreenHeight);
-global.curWidth = global.curWidth || curWidth;
-let scaleWidth = curWidth / 400;
-global.scaleWidth = global.scaleWidth || scaleWidth;
-let minUnit = ScreenWidth / 100;
-global.minUnit = global.minUnit || minUnit;
-let unitDisSt = curWidth / 25;
-let unitDisMv = curWidth / 15;
-
-import DrawWord from './DrawWord1';
-
 var data = require('./data/瞅.json');
-
-let Dis = function(x, y){
-  return Math.sqrt(x * x + y * y);
-};
-global.Dis = global.Dis || Dis;
-let DisP = function(p1, p2){
-  return Dis(p1.x - p2.x, p1.y - p2.y);
-};
-global.DisP = global.DisP || DisP;
-let Lerp = function(a, b, f){
-  if (f <= 0) return a;
-  if (f >= 1) return b;
-  return a + (b - a) * f;
-}
-global.Lerp = global.Lerp || Lerp;
-let LerpP = function(a, b, f){
-  if (f <= 0) return a;
-  if (f >= 1) return b;
-  return {
-    'x': Lerp(a.x, b.x, f),
-    'y': Lerp(a.y, b.y, f)
-  };
-}
-global.LerpP = global.LerpP || LerpP;
-var PathLength = function(points){
-  var d=0;
-  for(var i=1;i<points.length;i++){
-    d += DisP(points[i-1], points[i]);
-  }
-  return d;
-};
-global.PathLength = global.PathLength || PathLength;
-var Resample = function(points, normalizedPointsCount){
-  normalizedPointsCount = Math.max(3, normalizedPointsCount);
-  var intervalLength = PathLength(points) / (normalizedPointsCount-1);
-  var D = 0;
-  var q = {x:0, y:0};
-  var normalizedPoints = [];
-  normalizedPoints.push(points[0]);
-  var pointBuffer = [];
-  pointBuffer = pointBuffer.concat(points);
-  for(var i=1;i<pointBuffer.length;i++){
-    var a = pointBuffer[i-1];
-    var b = pointBuffer[i];
-    var d = DisP(a, b);
-    if ((D+d) > intervalLength){
-      q = LerpP(a, b, (intervalLength - D) / d);
-      normalizedPoints.push(q);
-      pointBuffer.splice(i, 0, q);
-      D = 0;
-    }else{
-      D += d;
-    }
-  }
-  if (normalizedPoints.length == normalizedPointsCount - 1){
-    normalizedPoints.push(pointBuffer[pointBuffer.length - 1]);
-  }
-  return normalizedPoints;
-};
-global.Resample = global.Resample || Resample;
-var ResampleByLen = function(points, len){
-  len = Math.max(2, len);
-  var normalizedPointsCount = parseInt(PathLength(points) / len);
-  if (normalizedPointsCount <= 0) {
-    return null;
-  }
-  return Resample(points, normalizedPointsCount);
-};
-global.ResampleByLen = global.ResampleByLen || ResampleByLen;
+import Utils from './DrawUtils';
+import DrawWord from './DrawWord1';
+import DrawTouch from './DrawTouch';
 
 let cv = {
   status_norm: 0,
@@ -126,8 +41,6 @@ let cv = {
   touch_begin: 0,
   touch_move: 1,
   touch_ended: 2,
-
-  scaleMin: 0.7,
 };
 
 export default class DrawLayout extends Component {
@@ -142,9 +55,9 @@ export default class DrawLayout extends Component {
     this.lastMousePostion = null;
     this.arrOrgPoint = [];
     this.arrUsedPoint = [];
-    this.arrShowPoint = [];
-    this.nowR = 5;
+    this.nowR = 10;
     this.blnCanDraw = false;
+    this.showPoints = null;
     
     this.status = cv.status_norm;
     for(var i=0;i<data.character.length;i++){
@@ -209,7 +122,7 @@ export default class DrawLayout extends Component {
         x: e.nativeEvent.locationX,
         y: e.nativeEvent.locationY
       };
-      var s = DisP(this.mousePosition, this.lastMousePostion);
+      var s = Utils.DisP(this.mousePosition, this.lastMousePostion);
       if (s >= 1){
         this.AddUsePoint(this.mousePosition, cv.touch_move);
       }
@@ -231,9 +144,9 @@ export default class DrawLayout extends Component {
   ResetDrawPoint(){
     this.arrOrgPoint = [];
     this.arrUsedPoint = [];
-    this.arrShowPoint = [];
     this.nowR = 5;
     this.blnCanDraw = false;
+    this.showPoints = null;
   }
   AddUsePoint(pos, kind){
     if (kind == cv.touch_begin){
@@ -252,18 +165,25 @@ export default class DrawLayout extends Component {
         for(var i=0;i<listTemp.length;i++){
           this.AddSinglePoint(listTemp[i], this.nowR);
         }
-        if (this.arrUsedPoint.length > 600){
+        if (this.arrUsedPoint.length > 500){
           this.blnCanDraw = false;
         }
+        // var count = Utils.DisP(this.lastMousePostion, pos);
+        // if (count > 1){
+        //   for(var i=0;i<count;i++){
+        //     var p = Utils.LerpP(this.lastMousePostion, pos, (i+1)/count);
+        //     this.AddSinglePoint(p, this.nowR);
+        //   }
+        // }
       }else{
-        var count = DisP(this.lastMousePostion, pos);
+        var count = Utils.DisP(this.lastMousePostion, pos);
         if (count > 1){
           var c = Math.ceil(count);
           for(var i=0; i < c; i++){
             if (i == c - 1){
               this.AddSinglePoint(pos, this.nowR);
             }else{
-              var p = LerpP(this.lastMousePostion, pos, (i + 1) / c);
+              var p = Utils.LerpP(this.lastMousePostion, pos, (i + 1) / c);
               this.AddSinglePoint(p, this.nowR);
             }
           }
@@ -273,20 +193,20 @@ export default class DrawLayout extends Component {
       }
     }
     this.lastMousePostion = this.mousePosition;
-    this.setUpdate();
+    this.drawTouch && this.drawTouch.setPoints(this.showPoints);
   }
-  AddSinglePoint(pos, scale){
-    pos.r = scale;
-    var d = new Path();
-    d.moveTo(pos.x, pos.y - pos.r);
-    d.arc(0, pos.r*2, pos.r).arc(0, -pos.r*2, pos.r).close();
-    pos.d = d;
-    pos.color = 'rgb(0,0,255)';
-    pos.time = 0;
+  AddSinglePoint(pos, r){
     this.arrUsedPoint.push(pos);
-    this.arrShowPoint.push(
-      <Shape d={pos.d} fill={pos.color}/>
-    );
+    d = new Path();
+    for(var i=0;i<this.arrUsedPoint.length;i++){
+      var p = this.arrUsedPoint[i];
+      if (i==0){
+        d.moveTo(p.x, p.y);
+      }else{
+        d.lineTo(p.x, p.y);
+      }
+    }
+    this.showPoints = d;
   }
   BSpline2Smooth1(list, blnSet){
     var aList = [];
@@ -301,12 +221,12 @@ export default class DrawLayout extends Component {
     while(loc1 < aList.length - 1){
       start = aList[loc1 - 1];
       end = aList[loc1 + 1];
-      tList.push(LerpP(aList[loc1-1], aList[loc1], 0.5));
+      tList.push(Utils.LerpP(aList[loc1-1], aList[loc1], 0.5));
       this.BSpline2Smooth2(tList, start, aList[loc1], end);
-      tList.push(LerpP(aList[loc1], aList[loc1+1], 0.5));
+      tList.push(Utils.LerpP(aList[loc1], aList[loc1+1], 0.5));
       ++loc1;
     }
-    var rl = ResampleByLen(tList, 2);
+    var rl = Utils.ResampleByLen(tList, 2);
     if (rl != null){
       return rl
     }else{
@@ -322,7 +242,7 @@ export default class DrawLayout extends Component {
     locy.push((arg1.y + arg2.y) * 0.5);
     locy.push(arg2.y - arg1.y);
     locy.push((arg1.y - 2*arg2.y + arg3.y) * 0.5);
-    var loc6 = parseInt(this.CountDistance(arg1, arg3));
+    var loc6 = parseInt(Utils.CountDistance(arg1, arg3));
     var loc7 = 0;
     var loc8 = 0;
     while(loc7 < loc6){
@@ -335,9 +255,6 @@ export default class DrawLayout extends Component {
       loc7++;
     }
   }
-  CountDistance(arg1, arg2){
-    return Math.round(Math.sqrt(Math.pow(arg1.x - arg2.x, 2) + Math.pow(arg1.y - arg2.y, 2)));
-  }
   SetEndPoint(bln){
 
   }
@@ -347,12 +264,15 @@ export default class DrawLayout extends Component {
   render() {
     return (
       <View style={styles.container} {...this._panResponder.panHandlers}>
-        <DrawWord style={styles.upView} ref={(r)=>{this.drawWord = r}} data={data}/>
-        <View style={styles.mouseView}>
-          <Surface ref={'lineView'} width={ScreenWidth} height={ScreenHeight}>
-            {this.arrShowPoint}
-          </Surface>
-        </View>
+        <DrawWord style={styles.upView} 
+          ref={(r)=>{this.drawWord = r}} 
+          data={data}
+        />
+        <DrawTouch ref={(r)=>{this.drawTouch = r}} 
+          data={this.showPoints}
+          strokeColor={'rgb(0,0,255)'}
+          strokeWidth={this.nowR}
+        />
       </View>
     );
   }
@@ -362,6 +282,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    width: ScreenWidth,
     backgroundColor: '#F5FCFF'
   },
   mouseView:{
