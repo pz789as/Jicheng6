@@ -11,7 +11,7 @@ import {
   ART,
 } from 'react-native';
 
-import Utils from './DrawUtils';
+import Utils from './Utils';
 
 const {
   Shape,

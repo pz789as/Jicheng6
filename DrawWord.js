@@ -24,7 +24,7 @@ const {
   ClippingRectangle,
 } = ART;
 
-import Utils from './DrawUtils';
+import Utils from './Utils';
 
 export default class DrawWord extends Component {
   constructor(props){

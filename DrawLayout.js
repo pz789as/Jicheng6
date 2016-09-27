@@ -14,7 +14,7 @@ import {
   StatusBar,
 } from 'react-native';
 
-import Utils from './DrawUtils';
+import Utils from './Utils';
 import DrawWord from './DrawWord';
 
 var data = require('./data/瞅.json');

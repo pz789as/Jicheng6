@@ -28,8 +28,8 @@ const {
   ClippingRectangle,
 } = ART;
 
-var data = require('./data/瞅.json');
-import Utils from './DrawUtils';
+// var data = require('./data/瞅.json');
+import Utils from './Utils';
 import DrawWord from './DrawWord1';
 import DrawTouch from './DrawTouch1';
 
@@ -41,6 +41,40 @@ let cv = {
   touch_begin: 0,
   touch_move: 1,
   touch_ended: 2,
+};
+let cd = {
+  '不': require('./data/不.json'),
+  '人': require('./data/人.json'),
+  '八': require('./data/八.json'),
+  '刀': require('./data/刀.json'),
+  '分': require('./data/分.json'),
+  '口': require('./data/口.json'),
+  '可': require('./data/可.json'),
+  '吞': require('./data/吞.json'),
+  '告': require('./data/告.json'),
+  '咽': require('./data/咽.json'),
+  '哀': require('./data/哀.json'),
+  '器': require('./data/器.json'),
+  '天': require('./data/天.json'),
+  '径': require('./data/径.json'),
+  '扣': require('./data/扣.json'),
+  '扩': require('./data/扩.json'),
+  '拥': require('./data/拥.json'),
+  '永': require('./data/永.json'),
+  '江': require('./data/江.json'),
+  '河': require('./data/河.json'),
+  '波': require('./data/波.json'),
+  '潘': require('./data/潘.json'),
+  '目': require('./data/目.json'),
+  '盲': require('./data/盲.json'),
+  '睁': require('./data/睁.json'),
+  '睦': require('./data/睦.json'),
+  '瞅': require('./data/瞅.json'),
+  '禾': require('./data/禾.json'),
+  '秋': require('./data/秋.json'),
+  '穴': require('./data/穴.json'),
+  '轻': require('./data/轻.json'),
+  '问': require('./data/问.json'),
 };
 
 export default class DrawLayout extends Component {
@@ -62,15 +96,8 @@ export default class DrawLayout extends Component {
     this.arrGesture = [];
     this.InitGesture();
     this.InitWordInfo();
-    
+    this.selWord = 0;
     this.status = cv.status_norm;
-    for(var i=0;i<data.character.length;i++){
-      var points = data.character[i].points;
-      for(var k=0;k<points.length;k++){
-        points[k].x = points[k].x * scaleWidth;
-        points[k].y = points[k].y * scaleWidth;
-      }
-    }
     this.wrongCount = 0;
     this.state={
       blnUpdate: false,
@@ -105,9 +132,9 @@ export default class DrawLayout extends Component {
     var strArr1 = require('./data/DrawInfo.json');
     var strArr2 = require('./data/OrderInfo.json');
     this.arrDataInfo = [];
-    for(var i=0;i<strArr0.length;i++){
+    for(var i=0;i<strArr0.data.length;i++){
       var wi = {};
-      var arr = strArr0[i].split('\t');
+      var arr = strArr0.data[i].split('\t');
       wi.strHZ = arr[0];
       wi.strUnic = arr[1];
       wi.strPinyin = arr[2];
@@ -120,13 +147,48 @@ export default class DrawLayout extends Component {
       wi.arrBJYIN = [];
       wi.iBJSL = 0;
       for(var m=7;m<arr.length;){
-        wi.arrBJ[wi.iBJSL] = arr[i];
-        wi.arrBJUnic[wi.iBJSL] = arr[i+1];
-        wi.arrBJYI[wi.iBJSL] = parseInt(arr[i+2]);
-        wi.arrBJYIN[wi.iBJSL] = parseInt(arr[i+3]);
+        wi.arrBJ[wi.iBJSL] = arr[m];
+        wi.arrBJUnic[wi.iBJSL] = arr[m+1];
+        wi.arrBJYI[wi.iBJSL] = parseInt(arr[m+2]);
+        wi.arrBJYIN[wi.iBJSL] = parseInt(arr[m+3]);
         wi.iBJSL++;
-        i+=4;
+        m+=4;
       }
+
+      var data = cd[wi.strHZ];
+      if (data == null){
+        console.log(wi.strHZ + '的json不存在');
+        wi.character = null;
+      }else{
+        wi.character = data.character;
+        for(var m=0;m<wi.character.length;m++){
+          var min = {x: Number.MAX_VALUE, y: Number.MAX_VALUE};
+          var max = {x: Number.MIN_VALUE, y: Number.MIN_VALUE};
+          var points = wi.character[m].points;
+          for(var k=0;k<points.length;k++){
+            points[k].x = points[k].x * scaleWidth;
+            points[k].y = points[k].y * scaleWidth;
+
+            min.x = Math.min(min.x, points[k].x);
+            min.y = Math.min(min.y, points[k].y);
+            max.x = Math.max(max.x, points[k].x);
+            max.y = Math.max(max.y, points[k].y);
+          }
+          wi.character[m].center = {
+            x: (min.x + max.x)/2, 
+            y: (min.y + max.y)/2
+          };
+          wi.character[m].isShow = false;
+        }
+      }
+
+      arr = strArr2.data[i].split('\t');
+      wi.arrOrder = [];
+      for(var m=0;m<arr.length;m++){
+        wi.arrOrder.push(parseInt(arr[i]));
+      }
+
+      this.arrDataInfo.push(wi);
     }
   }
   componentWillMount() {
@@ -312,9 +374,10 @@ export default class DrawLayout extends Component {
   }
   CompareBihua(){
     if (this.arrOrgPoint.length > 2){
+      var wi = this.arrDataInfo[this.selWord];
       var showNum = 0;
-      for(var i=0;i<data.character.length;i++){
-        var ch = data.character[i];
+      for(var i=0;i<wi.character.length;i++){
+        var ch = wi.character[i];
         if (ch.isShow){
           showNum++;
           continue;
@@ -332,7 +395,7 @@ export default class DrawLayout extends Component {
       <View style={styles.container} {...this._panResponder.panHandlers}>
         <DrawWord style={styles.upView} 
           ref={(r)=>{this.drawWord = r}} 
-          data={data}
+          data={this.arrDataInfo[this.selWord]}
         />
         <DrawTouch ref={(r)=>{this.drawTouch = r}} 
           data={this.showPoints}
