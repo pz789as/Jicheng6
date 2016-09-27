@@ -314,7 +314,11 @@ export default class DrawWord extends Component {
       this.arrLine[i] = (
         <Shape key={i} d={character[i].line} fill={character[i].color}/>
       );
+      this.tempArrLine[i] = (
+        <Shape key={i} d={character[i].line} fill={character[i].color}/>
+      );
       character[i].isShow = false;
+      character[i].isAnim = false;
     }
     this.tempDrawLine = null;
     this.drawIdx = 0;

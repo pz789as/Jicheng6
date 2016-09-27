@@ -383,8 +383,9 @@ export default class DrawLayout extends Component {
           showNum++;
           continue;
         }else{
-          var cValue = Utils.CompareGesture(this.arrOrgPoint, this.arrGesture[wi.arrOrder[i]]);
-          if (cValue <= 3){
+          // var cValue = Utils.CompareGesture(this.arrOrgPoint, this.arrGesture[wi.arrOrder[i]]);
+          var cValue = Utils.CompareGesture(this.arrOrgPoint, ch.orgPoints);
+          if (cValue <= 2){
             showNum++;
             this.drawWord && this.drawWord.SetAnimation(
               i, this.arrOrgPoint
@@ -402,6 +403,11 @@ export default class DrawLayout extends Component {
   autoUpdate(){
     
   }
+  onRestart(){
+    if (this.drawWord){
+      this.drawWord.setRestart();
+    }
+  }
   render() {
     return (
       <View style={styles.container} {...this._panResponder.panHandlers}>
@@ -414,6 +420,13 @@ export default class DrawLayout extends Component {
           strokeColor={'rgb(0,0,255)'}
           strokeWidth={this.nowR}
         />
+        <View style={styles.downView}>
+          <TouchableOpacity style={styles.buttonStyle} onPress={this.onRestart.bind(this)}>
+            <Text style={styles.buttonTextStyle}>
+              重新开始
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -445,24 +458,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#CCC'
   },
   downView: {
+    position: 'absolute',
+    left: 0,
+    bottom: 10,
     width: ScreenWidth,
+    height: minUnit * 10,
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginTop: minUnit * 5,
   },
-  autoWriteBtn:{
-    marginBottom: minUnit * 5,
-    marginLeft: minUnit * 5,
+  buttonStyle:{
+    
   },
-  autoWriteText:{
-    fontSize: minUnit * 6,
-    textAlign: 'center',
-  },
-  restartBtn:{
-    marginBottom: minUnit * 5,
-    marginRight: minUnit * 5,
-  },
-  restartText:{
+  buttonTextStyle:{
     fontSize: minUnit * 6,
     textAlign: 'center',
   }
