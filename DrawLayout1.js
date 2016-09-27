@@ -402,21 +402,32 @@ export default class DrawLayout extends Component {
             if (Math.abs(writeAngle - baseAngle) > 45){
               console.log('写反啦!');
               this.setTips('写反啦！');
+              this.AddWrongCount();
             }else{
               showNum++;
               this.drawWord && this.drawWord.SetAnimation(i, this.arrOrgPoint);
-              console.log('匹配完毕', cValue); 
+              this.wrongCount = 0;
+              console.log('匹配完毕', cValue);
             }
             break;
           }else{
             console.log('写的不对', cValue);
+            this.AddWrongCount();
             break;
           }
         }
       }
       if (showNum == wi.character.length){
         console.log('书写完毕');
+        this.setTips('写完啦！');
       }
+    }
+  }
+  AddWrongCount(){
+    this.wrongCount++;
+    if (this.wrongCount == 3){
+      this.drawWord && this.drawWord.setStrokeBlink();
+      this.wrongCount = 0;
     }
   }
   setTips(text){
@@ -435,6 +446,7 @@ export default class DrawLayout extends Component {
   }
   onRestart(){
     if (this.drawWord){
+      this.wrongCount = 0;
       this.drawWord.setRestart();
     }
   }

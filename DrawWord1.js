@@ -352,14 +352,14 @@ export default class DrawWord extends Component {
     if (this.blnBlink){
       this.blinkFrame++;
       var character = this.data.character;
-      var color =  this.blinkFrame % 2 == 0 ? 'rgb(155,0,0)' : 'rgb(255,0,0)';
+      var color =  this.blinkFrame % 2 == 0 ? 'rgb(100,0,0)' : 'rgb(255,0,0)';
       this.arrLine[this.blinkIdx] = (
         <Shape key={this.blinkIdx} d={character[this.blinkIdx].line} fill={color}/>
       );
       this.setUpdate();
     
-      if (this.blinkFrame <= 6){
-        this._blinkTime = setTimeout(this.blinkUpdate.bind(this), 100);
+      if (this.blinkFrame <= 8){
+        this._blinkTime = setTimeout(this.blinkUpdate.bind(this), 200);
       }else{
         this.stopBlink();
       }
@@ -405,6 +405,7 @@ export default class DrawWord extends Component {
     this._autoUpdata && clearInterval(this._autoUpdata);
   }
   SetAnimation(idx, points){
+    this.drawIdx = Math.min(this.data.character.length, idx+1);
     var center = Utils.ImageCenter(points);
     center = Utils.PSubP(center, {x:relativeX, y: relativeY});
     var start = points[0];
@@ -423,20 +424,9 @@ export default class DrawWord extends Component {
   }
   drawTempLine(){
     var arr = [];
-    for(var i=0;i<this.tempArrLine.length;i++){
-      if (this.tempArrLine[i].isShow){
-        var d = new Path();
-        for(var j=0;j<this.tempArrLine[i].nowPoints.length;j++){
-          if (j==0){
-            d.moveTo(this.tempArrLine[i].nowPoints[i]);
-          }else{
-            d.lineTo(this.tempArrLine[i].nowPoints[i]);
-          }
-        }
-        d.close();
-        arr.push(
-          <Shape d={d} fill={'black'} />
-        );
+    for(var i=0;i<this.data.character.length;i++){
+      if (this.data.character[i].isShow){
+        arr.push(this.tempArrLine[i]);
       }
     }
     return arr;
@@ -448,7 +438,7 @@ export default class DrawWord extends Component {
         <Surface ref={'lineView'} width={curWidth} height={curWidth}>
           {this.arrLine}
           {this.tempDrawLine}
-          {this.tempArrLine}
+          {this.drawTempLine()}
         </Surface>
         {this.showPoints}
       </View>
