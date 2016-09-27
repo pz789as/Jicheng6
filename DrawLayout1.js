@@ -110,8 +110,8 @@ export default class DrawLayout extends Component {
   }
   InitGesture(){
     var bezierDataStr = require('./data/Gesture.json');
-    for(var i=0;i<bezierDataStr.length;i++){
-      var strTemp = bezierDataStr[i];
+    for(var i=0;i<bezierDataStr.data.length;i++){
+      var strTemp = bezierDataStr.data[i];
       var strArr0 = strTemp.split('|');
       var listPoint = [];
       if (strArr0.length > 0){
@@ -382,7 +382,15 @@ export default class DrawLayout extends Component {
           showNum++;
           continue;
         }else{
-          // var cValue = Utils.CompareGestrue(this.arrOrgPoint, )
+          var cValue = Utils.CompareGesture(this.arrOrgPoint, this.arrGesture[wi.arrOrder[i]]);
+          if (cValue <= 4){
+            showNum++;
+            console.log('匹配完毕', cValue);
+            break;
+          }else{
+            console.log('写的不对', cValue);
+            break;
+          }
         }
       }
     }
@@ -393,8 +401,8 @@ export default class DrawLayout extends Component {
   render() {
     return (
       <View style={styles.container} {...this._panResponder.panHandlers}>
-        <DrawWord style={styles.upView} 
-          ref={(r)=>{this.drawWord = r}} 
+        <DrawWord ref={(r)=>{this.drawWord = r}}
+          style={styles.upView} 
           data={this.arrDataInfo[this.selWord]}
         />
         <DrawTouch ref={(r)=>{this.drawTouch = r}} 

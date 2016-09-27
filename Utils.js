@@ -113,14 +113,14 @@ var Utils = {
       var minDistance = Number.MAX_VALUE;
       for(var j=0;j<numPoints;j++){
         if (!Utils.matched[j]){
-          var distance = Utils.Dis(points1[i], points2[j]);
+          var distance = Utils.DisP(points1[i], points2[j]);
           if (distance < minDistance){
             minDistance = distance;
             index = j;
           }
         }
       }
-      matched[index] = true;
+      Utils.matched[index] = true;
       var weight = 1 - ((i - startIndex + points1.length)%points1.length)/points1.length;
       sum += weight * minDistance;
       i = (i+1)%points1.length;
@@ -184,7 +184,7 @@ var Utils = {
     var c = Utils.Centriod(points);
     for(var i=0;i<points.length;i++){
       var p = points[i];
-      p = Utils.PsubP(p - c);
+      p = Utils.PsubP(p, c);
       points[i] = p;
     }
   },
