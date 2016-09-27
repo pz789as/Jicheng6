@@ -386,17 +386,30 @@ export default class DrawLayout extends Component {
           // var cValue = Utils.CompareGesture(this.arrOrgPoint, this.arrGesture[wi.arrOrder[i]]);
           var cValue = Utils.CompareGesture(this.arrOrgPoint, ch.orgPoints);
           if (cValue <= 2){
-            showNum++;
-            this.drawWord && this.drawWord.SetAnimation(
-              i, this.arrOrgPoint
-            );
-            console.log('匹配完毕', cValue);
+            var writeAngle = Math.atan2(
+              this.arrOrgPoint[this.arrOrgPoint.length-1].y - this.arrOrgPoint[0].y,
+              this.arrOrgPoint[this.arrOrgPoint.length-1].x - this.arrOrgPoint[0].x
+            ) * 180 / Math.PI;
+            var baseAngle = Math.atan2(
+              ch.orgPoints[ch.orgPoints.length-1].y - ch.orgPoints[0].y,
+              ch.orgPoints[ch.orgPoints.length-1].x - ch.orgPoints[0].x
+            ) * 180 / Math.PI;
+            if (Math.abs(writeAngle - baseAngle) > 45){
+              console.log('写反啦!');
+            }else{
+              showNum++;
+              this.drawWord && this.drawWord.SetAnimation(i, this.arrOrgPoint);
+              console.log('匹配完毕', cValue); 
+            }
             break;
           }else{
             console.log('写的不对', cValue);
             break;
           }
         }
+      }
+      if (showNum == wi.character.length){
+        console.log('书写完毕');
       }
     }
   }
