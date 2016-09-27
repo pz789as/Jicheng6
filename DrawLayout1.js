@@ -185,7 +185,7 @@ export default class DrawLayout extends Component {
       arr = strArr2.data[i].split('\t');
       wi.arrOrder = [];
       for(var m=0;m<arr.length;m++){
-        wi.arrOrder.push(parseInt(arr[i]));
+        wi.arrOrder.push(parseInt(arr[m]));
       }
 
       this.arrDataInfo.push(wi);
@@ -307,6 +307,7 @@ export default class DrawLayout extends Component {
       }
       if (kind == cv.touch_ended){
         this.CompareBihua();
+        this.ResetDrawPoint();
       }
     }
     this.lastMousePostion = this.mousePosition;
@@ -383,8 +384,11 @@ export default class DrawLayout extends Component {
           continue;
         }else{
           var cValue = Utils.CompareGesture(this.arrOrgPoint, this.arrGesture[wi.arrOrder[i]]);
-          if (cValue <= 4){
+          if (cValue <= 3){
             showNum++;
+            this.drawWord && this.drawWord.SetAnimation(
+              i, this.arrOrgPoint
+            );
             console.log('匹配完毕', cValue);
             break;
           }else{
@@ -431,6 +435,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent'
   },
   upView:{
+    position: 'absolute',
+    left: relativeX,
+    top: relativeY,
     width: curWidth,
     height: curWidth,
     justifyContent: 'center',

@@ -16,6 +16,8 @@ global.scaleWidth = global.scaleWidth || curWidth / 400;
 global.minUnit = global.minUnit || ScreenWidth / 100;
 global.unitDisSt = global.unitDisSt || curWidth / 25;
 global.unitDisMv = global.unitDisMv || curWidth / 15;
+global.relativeX = global.relativeX || (ScreenWidth-curWidth)/2;
+global.relativeY = global.relativeY || (ScreenHeight-curWidth)/2;
 
 var Utils = {
   NormalizedPointsCount: 32,
@@ -176,7 +178,7 @@ var Utils = {
     var invSize = 1 / size;
     for(var i=0;i<points.length;i++){
       var p = points[i];
-      p = Utils.PMulV(Utils.PsubP(p, min), invSize);
+      p = Utils.PMulV(Utils.PSubP(p, min), invSize);
       points[i] = p;
     }
   },
@@ -184,7 +186,7 @@ var Utils = {
     var c = Utils.Centriod(points);
     for(var i=0;i<points.length;i++){
       var p = points[i];
-      p = Utils.PsubP(p, c);
+      p = Utils.PSubP(p, c);
       points[i] = p;
     }
   },
@@ -214,7 +216,7 @@ var Utils = {
   PAddP: function(a, b){//两点相加
     return {x: a.x + b.x, y: a.y + b.y};
   },
-  PsubP: function(a, b){//两点相减
+  PSubP: function(a, b){//两点相减
     return {x: a.x - b.x, y: a.y - b.y};
   },
   PMulV: function(a, v){//点乘以数值

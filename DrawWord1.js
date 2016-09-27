@@ -26,6 +26,8 @@ const {
 
 import Utils from './Utils';
 
+let animMoveTime = 10;
+
 export default class DrawWord extends Component {
   constructor(props){
     super(props);
@@ -48,6 +50,7 @@ export default class DrawWord extends Component {
     this.state = {
       blnUpdate: false
     };
+    this._autoUpdata = setInterval(this.autoUpdate.bind(this), 1/60);
   }
   setUpdate(){
     this.setState({
@@ -59,6 +62,7 @@ export default class DrawWord extends Component {
     var character = this.data.character;
     console.log("笔画数：" + character.length);
     this.arrLine = [];
+    this.tempArrLine = [];
     for(var i=0;i<character.length;i++){
       character[i].isShow = false;
       var points = character[i].points;
@@ -188,7 +192,10 @@ export default class DrawWord extends Component {
       character[i].line = line;
 
       this.arrLine.push(
-        <Shape key={i} d={line} fill={character[i].color}/>
+        <Shape key={i} d={line} fill={character[i].color} />
+      );
+      this.tempArrLine.push(
+        <Shape key={i} d={line} fill={character[i].color} />
       );
     }
   }
@@ -354,12 +361,81 @@ export default class DrawWord extends Component {
       }
     }
   }
+  autoUpdate(){
+    var bln = false;
+    var character = this.data.character;
+    for(var i=0;i<character.length;i++){
+      if (character[i].isShow){
+        if (character[i].isAnim){
+          var d = new Path();
+          character[i].animTime++;
+          for(var k=0;k<character[i].newPoints.length;k++){
+            var p = character[i].newPoints[k];
+            p = Utils.LerpP(p, character[i].bspArr[k], character[i].animTime/animMoveTime);
+            if (k==0){
+              d.moveTo(p.x, p.y);
+            }else{
+              d.lineTo(p.x, p.y);
+            }
+          }
+          this.tempArrLine[i] = (
+            <Shape key={i} d={d} fill={'black'} />
+          )
+          if (character[i].animTime >= animMoveTime){
+            character[i].isAnim = false;
+          }
+          bln = true;
+        }
+      }
+    }
+    if (bln){
+      this.setUpdate();
+    }
+  }
   componentDidMount() {
     this.drawIdx = 0;
     this.setBeginDraw();
   }
   componentWillUnmount() {
     this._blinkTime && clearTimeout(this._blinkTime);
+    this._autoUpdata && clearInterval(this._autoUpdata);
+  }
+  SetAnimation(idx, points){
+    var center = Utils.ImageCenter(points);
+    center = Utils.PSubP(center, {x:relativeX, y: relativeY});
+    var start = points[0];
+    var end = points[points.length - 1];
+    var character = this.data.character;
+    var movePos = Utils.PSubP(center, character[idx].center);
+    var newPoints = [];
+    newPoints = newPoints.concat(character[idx].bspArr);
+    for(var i=0;i<newPoints.length;i++){
+      newPoints[i] = Utils.PAddP(newPoints[i], movePos);
+    }
+    character[idx].newPoints = newPoints;
+    character[idx].isShow = true;
+    character[idx].isAnim = true;
+    character[idx].animTime = 0;
+  }
+  drawTempLine(){
+    var arr = [];
+    for(var i=0;i<this.tempArrLine.length;i++){
+      if (this.tempArrLine[i].isShow){
+        var d = new Path();
+        for(var j=0;j<this.tempArrLine[i].nowPoints.length;j++){
+          if (j==0){
+            d.moveTo(this.tempArrLine[i].nowPoints[i]);
+          }else{
+            d.lineTo(this.tempArrLine[i].nowPoints[i]);
+          }
+        }
+        d.close();
+        arr.push(
+          <Shape d={d} fill={'black'} />
+        );
+      }
+    }
+    return arr;
   }
   
   render() {
@@ -368,6 +444,7 @@ export default class DrawWord extends Component {
         <Surface ref={'lineView'} width={curWidth} height={curWidth}>
           {this.arrLine}
           {this.tempDrawLine}
+          {this.tempArrLine}
         </Surface>
         {this.showPoints}
       </View>
