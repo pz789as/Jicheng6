@@ -33,6 +33,8 @@ import Utils from './Utils';
 import DrawWord from './DrawWord1';
 import DrawTouch from './DrawTouch1';
 
+let showTipTime = 80;
+
 let cv = {
   status_norm: 0,
   status_auto: 1,
@@ -102,6 +104,9 @@ export default class DrawLayout extends Component {
     this.state={
       blnUpdate: false,
     };
+    this.blnTips = false;
+    this.tipsTime = 0;
+    this.tipsText = '';
   }
   setUpdate(){
     this.setState({
@@ -396,6 +401,7 @@ export default class DrawLayout extends Component {
             ) * 180 / Math.PI;
             if (Math.abs(writeAngle - baseAngle) > 45){
               console.log('写反啦!');
+              this.setTips('写反啦！');
             }else{
               showNum++;
               this.drawWord && this.drawWord.SetAnimation(i, this.arrOrgPoint);
@@ -413,8 +419,19 @@ export default class DrawLayout extends Component {
       }
     }
   }
+  setTips(text){
+    this.tipsText = text;
+    this.blnTips = true;
+    this.tipsTime = showTipTime;
+  }
   autoUpdate(){
-    
+    if (this.blnTips){
+      this.tipsTime--;
+      if (this.tipsTime < 0){
+        this.blnTips = false;
+      }
+      this.setUpdate();
+    }
   }
   onRestart(){
     if (this.drawWord){
@@ -440,8 +457,32 @@ export default class DrawLayout extends Component {
             </Text>
           </TouchableOpacity>
         </View>
+
+        {this.DrawTips()}
       </View>
     );
+  }
+  DrawTips(){
+    if (this.tipsTime > 0){
+      var opacity = 0.5;
+      var t = showTipTime / 2;
+      if (this.tipsTime >= t){
+        opacity = 0.5 + 0.3 * (showTipTime-this.tipsTime)/t; 
+      }else{
+        opacity = 0.8 * this.tipsTime / t; 
+      }
+      return (
+        <View style={[
+          styles.tipsStyle, 
+          {opacity: opacity}]}>
+          <Text style={styles.tipsText}>
+            {this.tipsText}
+          </Text>
+        </View>
+      )
+    }else{
+      return null;
+    }
   }
 }
 
@@ -485,5 +526,21 @@ const styles = StyleSheet.create({
   buttonTextStyle:{
     fontSize: minUnit * 6,
     textAlign: 'center',
-  }
+  },
+  tipsStyle:{
+    position: 'absolute',
+    left: ScreenWidth*3/8,
+    top: ScreenHeight/2-minUnit*3,
+    width: ScreenWidth/4,
+    height: minUnit*6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgb(0,0,0)',
+    opacity: 0.5
+  },
+  tipsText:{
+    color: 'red',
+    fontSize: minUnit*4,
+    textAlign: 'center',
+  },
 });
