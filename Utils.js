@@ -228,6 +228,15 @@ var Utils = {
       v = 1;
     }
     return {x: a.x / v, y: a.y / v};
+  },
+  PRotP: function(a, b, v){//b点绕a点旋转v度后的坐标，v角度
+    v = v * Math.PI / 180;//角度转换成弧度
+    var ab = Utils.DisP(a, b);//两点的距离
+    var k = Math.atan2(b.y-a.y, b.x-a.x);//以a为远点，b的夹角
+    return ({
+      x: a.x + ab * Math.sin(k+v),
+      y: a.y + ab * Math.cos(k+v) 
+    });
   }
 };
 
