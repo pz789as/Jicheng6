@@ -215,6 +215,23 @@ var Utils = {
       y: (max.y + min.y) / 2,
     };
   },
+  SumAngle: function(points, blnGest){//获取所有点的转向角度之和
+    var sumAngle = 0;
+    var tempAngle = 0;
+    var lastAngle = 0;
+    if (points.length > 2){
+      Utils.blnGesture = blnGest;
+      points = Utils.Normalize(points);
+      console.log(points.length);
+      lastAngle = Math.atan2(points[1].y - points[0].y, points[1].x - points[0].x);
+      for(var i=2;i<points.length;i++){
+        tempAngle = Math.atan2(points[i].y - points[i-1].y, points[i].x - points[i-1].x);
+        sumAngle += Math.abs(tempAngle - lastAngle) * 180 / Math.PI;
+        lastAngle = tempAngle;
+      }
+    }
+    return sumAngle;
+  },
   PAddP: function(a, b){//两点相加
     return {x: a.x + b.x, y: a.y + b.y};
   },

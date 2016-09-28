@@ -165,6 +165,8 @@ export default class DrawWord extends Component {
       y = (upPoints[up_step - 1].y + downPoints[down_step - 1].y) / 2;
       orgPoints.push({'x': x, 'y': y});
       character[i].orgPoints = orgPoints;
+      character[i].orgAngle = Utils.SumAngle(orgPoints, true);
+      character[i].orgAvgAngle = character[i].orgAngle/orgPoints.length;
       // character[i].dashPoints = ResampleByLen(orgPoints, 10);
       
       // for(var k=0;k<character[i].dashPoints.length;k++){

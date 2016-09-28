@@ -309,10 +309,10 @@ export default class DrawLayout extends Component {
           this.AddSinglePoint(pos, this.nowR);
         }
       }
-      if (kind == cv.touch_ended){
-        this.CompareBihua();
-        this.ResetDrawPoint();
-      }
+    }
+    if (kind == cv.touch_ended){
+      this.CompareBihua();
+      this.ResetDrawPoint();
     }
     this.lastMousePostion = this.mousePosition;
     this.drawTouch && this.drawTouch.setPoints(this.showPoints);
@@ -389,7 +389,13 @@ export default class DrawLayout extends Component {
         }else{
           // var cValue = Utils.CompareGesture(this.arrOrgPoint, this.arrGesture[wi.arrOrder[i]]);
           var cValue = Utils.CompareGesture(this.arrOrgPoint, ch.orgPoints);
-          if (cValue <= 2){
+          // var cAngle = Utils.SumAngle(this.arrOrgPoint, true);
+          // var cAvgAngle = cAngle / this.arrOrgPoint.length;
+          // console.log('相似度：' + cValue, '原始点数量：' + ch.orgPoints.length);
+          // console.log('书写角度和：' + cAngle, '书写角度均值：' + cAvgAngle);
+          // console.log('原始角度和：' + ch.orgAngle, '原始角度均值：' + ch.orgAvgAngle);
+          // cAngle = Math.abs(cAngle - ch.orgAngle);
+          if (cValue <= 1.75){
             var writeAngle = Math.atan2(
               this.arrOrgPoint[this.arrOrgPoint.length-1].y - this.arrOrgPoint[0].y,
               this.arrOrgPoint[this.arrOrgPoint.length-1].x - this.arrOrgPoint[0].x
@@ -399,7 +405,7 @@ export default class DrawLayout extends Component {
               ch.orgPoints[ch.orgPoints.length-1].x - ch.orgPoints[0].x
             ) * 180 / Math.PI;
             if (Math.abs(writeAngle - baseAngle) > 45){
-              console.log('写反啦!');
+              console.log('写反啦!', cValue);
               this.setTips('写反啦！');
               this.AddWrongCount();
             }else{
@@ -417,7 +423,7 @@ export default class DrawLayout extends Component {
         }
       }
       if (showNum == wi.character.length){
-        console.log('书写完毕');
+        console.log('书写完毕', cValue);
         this.setTips('写完啦！');
       }
     }
