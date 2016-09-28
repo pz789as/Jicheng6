@@ -387,15 +387,21 @@ export default class DrawLayout extends Component {
           showNum++;
           continue;
         }else{
+          // Utils.NormalizedPointsCount = 64;
           // var cValue = Utils.CompareGesture(this.arrOrgPoint, this.arrGesture[wi.arrOrder[i]]);
           var cValue = Utils.CompareGesture(this.arrOrgPoint, ch.orgPoints);
-          // var cAngle = Utils.SumAngle(this.arrOrgPoint, true);
-          // var cAvgAngle = cAngle / this.arrOrgPoint.length;
-          // console.log('相似度：' + cValue, '原始点数量：' + ch.orgPoints.length);
-          // console.log('书写角度和：' + cAngle, '书写角度均值：' + cAvgAngle);
-          // console.log('原始角度和：' + ch.orgAngle, '原始角度均值：' + ch.orgAvgAngle);
-          // cAngle = Math.abs(cAngle - ch.orgAngle);
-          if (cValue <= 1.75){
+          var cAngle = Utils.SumAngle(this.arrOrgPoint, true);
+          var cAvgAngle = cAngle / this.arrOrgPoint.length;
+          console.log('相似度：' + cValue, '原始点数量：' + ch.orgPoints.length);
+          console.log('书写角度和：' + cAngle, '书写角度均值：' + cAvgAngle);
+          console.log('原始角度和：' + ch.orgAngle, '原始角度均值：' + ch.orgAvgAngle);
+          cAngle = Math.abs(cAngle - ch.orgAngle);
+          // var blnIn = Utils.PointInPolygon(
+          //   Utils.PSubP(this.arrOrgPoint[0],{x:relativeX, y: relativeY}), 
+          //   ch.bspArr
+          // );
+          // console.log(blnIn);
+          if (cValue <= 2 && cAngle <= 180){
             var writeAngle = Math.atan2(
               this.arrOrgPoint[this.arrOrgPoint.length-1].y - this.arrOrgPoint[0].y,
               this.arrOrgPoint[this.arrOrgPoint.length-1].x - this.arrOrgPoint[0].x

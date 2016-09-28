@@ -167,20 +167,12 @@ var Utils = {
     return normalizedPoints;
   },
   Scale: function(points){//缩放点数组到标准尺寸
-    var min = {x: Number.MAX_VALUE, y: Number.MAX_VALUE};
-    var max = {x: Number.MIN_VALUE, y: Number.MIN_VALUE};
-    for(var i=0;i<points.length;i++){
-      var p = points[i];
-      min.x = Math.min(min.x, p.x);
-      min.y = Math.min(min.y, p.y);
-      max.x = Math.max(max.x, p.x);
-      max.y = Math.max(max.y, p.y);
-    }
-    var size = Math.max(max.x - min.x, max.y - min.y);
+    var side = Utils.MaxSize(points);
+    var size = Math.max(side.maxX - side.minX, side.maxY - side.minY);
     var invSize = 1 / size;
     for(var i=0;i<points.length;i++){
       var p = points[i];
-      p = Utils.PMulV(Utils.PSubP(p, min), invSize);
+      p = Utils.PMulV(Utils.PSubP(p, {x:side.minX, y:side.minY}), invSize);
       points[i] = p;
     }
   },
@@ -201,19 +193,27 @@ var Utils = {
     return c;
   },
   ImageCenter: function(points){//获取外框中心
-    var min = {x: Number.MAX_VALUE, y: Number.MAX_VALUE};
-    var max = {x: Number.MIN_VALUE, y: Number.MIN_VALUE};
+    var side = Utils.MaxSize(points);
+    return {
+      x: (side.maxX + side.minX) / 2,
+      y: (side.maxY + side.minY) / 2,
+    };
+  },
+  MaxSize: function(points){
+    var size = {
+      maxX: Number.MIN_VALUE,
+      maxY: Number.MIN_VALUE,
+      minX: Number.MAX_VALUE,
+      minY: Number.MAX_VALUE
+    };
     for(var i=0;i<points.length;i++){
       var p = points[i];
-      min.x = Math.min(min.x, p.x);
-      min.y = Math.min(min.y, p.y);
-      max.x = Math.max(max.x, p.x);
-      max.y = Math.max(max.y, p.y);
+      size.minX = Math.min(size.minX, p.x);
+      size.minY = Math.min(size.minY, p.y);
+      size.maxX = Math.max(size.maxX, p.x);
+      size.maxY = Math.max(size.maxY, p.y);
     }
-    return {
-      x: (max.x + min.x) / 2,
-      y: (max.y + min.y) / 2,
-    };
+    return size;
   },
   SumAngle: function(points, blnGest){//获取所有点的转向角度之和
     var sumAngle = 0;
@@ -222,15 +222,33 @@ var Utils = {
     if (points.length > 2){
       Utils.blnGesture = blnGest;
       points = Utils.Normalize(points);
-      console.log(points.length);
       lastAngle = Math.atan2(points[1].y - points[0].y, points[1].x - points[0].x);
       for(var i=2;i<points.length;i++){
         tempAngle = Math.atan2(points[i].y - points[i-1].y, points[i].x - points[i-1].x);
-        sumAngle += Math.abs(tempAngle - lastAngle) * 180 / Math.PI;
+        var add = Math.abs(tempAngle - lastAngle) * 180 / Math.PI;
+        sumAngle += add;
         lastAngle = tempAngle;
       }
     }
     return sumAngle;
+  },
+  PointInPolygon: function(p, points){//判断点是否在多边形之内
+    var side = Utils.MaxSize(points);
+    if (p.x < side.minX || p.x > side.maxX || p.y < side.minY || p.y > side.maxY){
+      return false;
+    }
+    var count = points.length;
+    if (count < 3){
+      return false;
+    }
+    var i,j,c = false;
+    for(i=0, j=count-1; i<count; j=i++){
+      if (((points[i].y > p.y) != (points[j].y > p.y)) &&
+        (p.x < (points[j].x - points[i].x)*(p.y - points[i].y)/(points[j].y-points[i].y)+points[i].x)){
+        c = !c;
+      }
+    }
+    return c;
   },
   PAddP: function(a, b){//两点相加
     return {x: a.x + b.x, y: a.y + b.y};
