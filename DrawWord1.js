@@ -31,7 +31,19 @@ let animMoveTime = 10;
 export default class DrawWord extends Component {
   constructor(props){
     super(props);
-    this.data = props.data;
+    this.state = {
+      blnUpdate: false
+    };
+    this._autoUpdata = setInterval(this.autoUpdate.bind(this), 1/60);
+    this.initWord(props.data);
+  }
+  setUpdate(){
+    this.setState({
+      blnUpdate: !this.blnUpdate,
+    });
+  }
+  initWord(data){
+    this.data = data;
     this.drawIdx = -1;
     this.Offx = 0;
     this.Offy = 0;
@@ -44,18 +56,7 @@ export default class DrawWord extends Component {
     this.tempDrawData = {};
     this.tempDrawLine = null;
     this.showPoints = [];
-
     this.loadWord();
-    
-    this.state = {
-      blnUpdate: false
-    };
-    this._autoUpdata = setInterval(this.autoUpdate.bind(this), 1/60);
-  }
-  setUpdate(){
-    this.setState({
-      blnUpdate: !this.blnUpdate,
-    });
   }
   loadWord(){
     this.drawIdx = -1;
@@ -405,6 +406,9 @@ export default class DrawWord extends Component {
     this._autoUpdata && clearInterval(this._autoUpdata);
   }
   SetAnimation(idx, points){
+    if (this.drawIdx == this.data.character.length){
+      return;
+    }
     this.drawIdx = Math.min(this.data.character.length, idx+1);
     var center = Utils.ImageCenter(points);
     center = Utils.PSubP(center, {x:relativeX, y: relativeY});
@@ -413,9 +417,13 @@ export default class DrawWord extends Component {
     var character = this.data.character;
     var movePos = Utils.PSubP(center, character[idx].center);
     var newPoints = [];
+    var scale = Utils.DisP(start, end) / Utils.DisP(character[idx].orgPoints[0], character[idx].orgPoints[character[idx].orgPoints.length - 1]);
     newPoints = newPoints.concat(character[idx].bspArr);
     for(var i=0;i<newPoints.length;i++){
       newPoints[i] = Utils.PAddP(newPoints[i], movePos);
+      var p = Utils.PSubP(newPoints[i], center);
+      p = Utils.PMulV(p, scale);
+      newPoints[i] = Utils.PAddP(center, p);
     }
     character[idx].newPoints = newPoints;
     character[idx].isShow = true;

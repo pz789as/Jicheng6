@@ -12,15 +12,34 @@ import {
   View,
 } from 'react-native';
 
-import DrawLayout from './DrawLayout1';
+import DrawLayout from './DrawLayout';
+import DrawLayout1 from './DrawLayout1';
 
 class Jicheng6 extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      kind: 1,
+    };
+  }
+  onChangeModule(){
+    this.setState({
+      kind: (this.state.kind + 1)%2, 
+    });
+  }
   render() {
     return (
       <View style={styles.container}>
-        <DrawLayout />
+        {this.getRender()}
       </View>
     );
+  }
+  getRender(){
+    if (this.state.kind == 0){
+      return <DrawLayout onPress={this.onChangeModule.bind(this)}/>; 
+    }else{
+      return <DrawLayout1 onPress={this.onChangeModule.bind(this)}/>
+    }
   }
 }
 

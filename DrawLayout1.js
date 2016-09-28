@@ -28,7 +28,6 @@ const {
   ClippingRectangle,
 } = ART;
 
-// var data = require('./data/瞅.json');
 import Utils from './Utils';
 import DrawWord from './DrawWord1';
 import DrawTouch from './DrawTouch1';
@@ -435,19 +434,112 @@ export default class DrawLayout extends Component {
     this.blnTips = true;
     this.tipsTime = showTipTime;
   }
+  setDrawNext(){
+    this.drawWord.setEndDraw();
+    this.drawWord.drawIdx++;
+    this.nowPos = 0;
+    this.drawWord.setBeginDraw();
+    this.wrongCount = 0;
+  }
+  onAutoWrite(){
+    if (this.status == cv.status_norm){
+      this.wrongCount = 0;
+      this.status = cv.status_auto;
+      this.nowPos = 0;
+      if (this.drawWord){
+        this.drawWord.setRestart();
+      }
+      this.setUpdate();
+    }else if (this.status == cv.status_auto){
+      this.status = cv.status_pause;
+      this.setUpdate();
+    }else if (this.status == cv.status_pause){
+      this.status = cv.status_auto;
+      this.setUpdate();
+    }
+  }
   autoUpdate(){
+    var bln = false;
+    if (this.status == cv.status_auto){
+      if (this.drawWord){
+        var idx = this.drawWord.drawIdx;
+        if (idx>=0){
+          var points = this.arrDataInfo[this.selWord].character[idx].orgPoints;
+          if (this.nowPos >= points.length + 10){
+            if (this.drawWord.drawIdx < this.arrDataInfo[this.selWord].character.length - 1){
+              this.setDrawNext();
+            }else{
+              this.status = cv.status_norm;
+              bln = true;
+            }
+          }else{
+            this.nowPos += 0.25;
+            this.drawWord.DrawingPecent(this.nowPos / points.length);
+          }
+        }
+      }
+    }
     if (this.blnTips){
       this.tipsTime--;
       if (this.tipsTime < 0){
         this.blnTips = false;
       }
+      bln = true;
+    }
+    if (bln){
       this.setUpdate();
     }
   }
+  autoWriteStop(){
+    this.status = cv.status_norm;
+    this.setUpdate();
+  }
   onRestart(){
+    if (this.status == cv.status_auto || this.status == cv.status_pause){
+      this.autoWriteStop();
+    }
     if (this.drawWord){
+      this.nowPos = 0;
       this.wrongCount = 0;
       this.drawWord.setRestart();
+    }
+  }
+  onLast(){
+    if (this.drawWord){
+      if (this.selWord > 0){
+        this.selWord--;
+        if (this.arrDataInfo[this.selWord].character == null){
+          this.onLast();
+        }else{
+          this.drawWord.initWord(this.arrDataInfo[this.selWord]);
+          this.onRestart();
+        }
+      }
+    }
+  }
+  onNext(){
+    if (this.drawWord){
+      if (this.selWord < this.arrDataInfo.length - 1){
+        this.selWord++;
+        if (this.arrDataInfo[this.selWord].character == null){
+          this.onNext();
+        }else{
+          this.drawWord.initWord(this.arrDataInfo[this.selWord]);
+          this.onRestart();
+        }
+      }
+    }
+  }
+  onChangeView(){
+    this.props.onPress();
+  }
+  getAutoText(){
+    if (this.status == cv.status_auto){
+      return '暂停书写';
+    }else if (this.status == cv.status_norm){
+      return '自动书写';
+    }else if (this.status == cv.status_pause){
+      return '继续书写';
     }
   }
   render() {
@@ -462,15 +554,36 @@ export default class DrawLayout extends Component {
           strokeColor={'rgb(0,0,255)'}
           strokeWidth={this.nowR}
         />
-        <View style={styles.downView}>
-          <TouchableOpacity style={styles.buttonStyle} onPress={this.onRestart.bind(this)}>
+        {this.DrawBottom()}
+        <View style={styles.downChange}>
+          <TouchableOpacity style={styles.buttonStyle} onPress={this.onAutoWrite.bind(this)}>
             <Text style={styles.buttonTextStyle}>
-              重新开始
+              {this.getAutoText()}
             </Text>
           </TouchableOpacity>
         </View>
-
         {this.DrawTips()}
+      </View>
+    );
+  }
+  DrawBottom(){
+    return (
+      <View style={styles.downView}>
+        <TouchableOpacity style={styles.buttonStyle} onPress={this.onLast.bind(this)}>
+          <Text style={styles.buttonTextStyle}>
+            上一个
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonStyle} onPress={this.onRestart.bind(this)}>
+          <Text style={styles.buttonTextStyle}>
+            重新开始
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonStyle} onPress={this.onNext.bind(this)}>
+          <Text style={styles.buttonTextStyle}>
+            下一个
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -523,10 +636,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#CCC'
   },
-  downView: {
+  downChange:{
     position: 'absolute',
     left: 0,
     bottom: 10,
+    width: ScreenWidth,
+    height: minUnit * 10,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  downView: {
+    position: 'absolute',
+    left: 0,
+    bottom: 10 + minUnit * 10,
     width: ScreenWidth,
     height: minUnit * 10,
     flexDirection: 'row',

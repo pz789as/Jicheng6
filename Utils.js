@@ -19,6 +19,8 @@ global.unitDisMv = global.unitDisMv || curWidth / 15;
 global.relativeX = global.relativeX || (ScreenWidth-curWidth)/2;
 global.relativeY = global.relativeY || (ScreenHeight-curWidth)/2;
 
+console.log(scaleWidth);
+
 var Utils = {
   NormalizedPointsCount: 32,
   blnGesture: false,

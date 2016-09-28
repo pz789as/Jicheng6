@@ -17,28 +17,63 @@ import {
 import Utils from './Utils';
 import DrawWord from './DrawWord';
 
-var data = require('./data/瞅.json');
-
 let cv = {
   status_norm: 0,
   status_auto: 1,
   status_pause: 2,
 };
+let cd = [
+  require('./data/不.json'),
+  require('./data/人.json'),
+  require('./data/八.json'),
+  require('./data/刀.json'),
+  require('./data/分.json'),
+  require('./data/口.json'),
+  require('./data/可.json'),
+  require('./data/吞.json'),
+  require('./data/告.json'),
+  require('./data/咽.json'),
+  require('./data/哀.json'),
+  require('./data/器.json'),
+  require('./data/天.json'),
+  require('./data/径.json'),
+  require('./data/扣.json'),
+  require('./data/扩.json'),
+  require('./data/拥.json'),
+  require('./data/永.json'),
+  require('./data/江.json'),
+  require('./data/河.json'),
+  require('./data/波.json'),
+  require('./data/潘.json'),
+  require('./data/目.json'),
+  require('./data/盲.json'),
+  require('./data/睁.json'),
+  require('./data/睦.json'),
+  require('./data/瞅.json'),
+  require('./data/禾.json'),
+  require('./data/秋.json'),
+  require('./data/穴.json'),
+  require('./data/轻.json'),
+  require('./data/问.json'),
+];
 
 export default class DrawLayout extends Component {
   constructor(props){
     super(props);
     this._panResponder = {};
+    this.selWord = 0;
     this.drawWord = null;
     this.nowPos = 0;
     this.touchLastPoint = null;
     this.status = cv.status_norm;
-    for(var i=0;i<data.character.length;i++){
-      var points = data.character[i].points;
-      for(var k=0;k<points.length;k++){
-        points[k].x = points[k].x * scaleWidth;
-        points[k].y = points[k].y * scaleWidth;
-      }
+    for(var c=0;c<cd.length;c++){
+      for(var i=0;i<cd[c].character.length;i++){
+        var points = cd[c].character[i].points;
+        for(var k=0;k<points.length;k++){
+          points[k].x = points[k].x * scaleWidth;
+          points[k].y = points[k].y * scaleWidth;
+        }
+      } 
     }
     this.wrongCount = 0;
     this.state={
@@ -89,8 +124,8 @@ export default class DrawLayout extends Component {
         this.touchLastPoint = tp;
         var idx = this.drawWord.drawIdx;
         if (idx >= 0){
-          var points = data.character[idx].orgPoints;
-          var dis = Utils.DisP(tp, data.character[idx].orgPoints[Math.min(this.nowPos, points.length-1)]);
+          var points = cd[this.selWord].character[idx].orgPoints;
+          var dis = Utils.DisP(tp, cd[this.selWord].character[idx].orgPoints[Math.min(this.nowPos, points.length-1)]);
           if (dis < unitDisSt){
             this.nowPos++;
             this.drawWord.DrawingPecent(this.nowPos / points.length);
@@ -108,7 +143,7 @@ export default class DrawLayout extends Component {
         };
         var idx = this.drawWord.drawIdx; 
         if (idx >= 0){
-          var points = data.character[idx].orgPoints;
+          var points = cd[this.selWord].character[idx].orgPoints;
           if (this.nowPos - 1 < points.length){
             var tempD = Utils.DisP(tp, this.touchLastPoint);
             if (tempD >= 1){
@@ -144,9 +179,9 @@ export default class DrawLayout extends Component {
     if (this.drawWord){
       var idx = this.drawWord.drawIdx; 
       if (idx >= 0){
-        var points = data.character[idx].orgPoints;
+        var points = cd[this.selWord].character[idx].orgPoints;
         if (this.nowPos >= points.length){
-          if (this.drawWord.drawIdx < data.character.length - 1){
+          if (this.drawWord.drawIdx < cd[this.selWord].character.length - 1){
             console.log('学习下一笔');
             this.setDrawNext();
           }else{
@@ -205,9 +240,9 @@ export default class DrawLayout extends Component {
       if (this.drawWord){
         var idx = this.drawWord.drawIdx;
         if (idx>=0){
-          var points = data.character[idx].orgPoints;
+          var points = cd[this.selWord].character[idx].orgPoints;
           if (this.nowPos >= points.length + 10){
-            if (this.drawWord.drawIdx < data.character.length - 1){
+            if (this.drawWord.drawIdx < cd[this.selWord].character.length - 1){
               this.setDrawNext();
             }else{
               this.status = cv.status_norm;
@@ -230,10 +265,31 @@ export default class DrawLayout extends Component {
       return '继续书写';
     }
   }
+  onLast(){
+    if (this.drawWord){
+      if (this.selWord > 0){
+        this.selWord--;
+        this.drawWord.InitWord(cd[this.selWord]);
+        this.drawWord.setRestart();
+      }
+    }
+  }
+  onNext(){
+    if (this.drawWord){
+      if (this.selWord < cd.length - 1){
+        this.selWord++;
+        this.drawWord.InitWord(cd[this.selWord]);
+        this.drawWord.setRestart();
+      }
+    }
+  }
+  onChangeView(){
+    this.props.onPress();
+  }
   render() {
     return (
       <View style={styles.container} {...this._panResponder.panHandlers}>
-        <DrawWord style={styles.upView} ref={(r)=>{this.drawWord = r}} data={data}/>
+        <DrawWord style={styles.upView} ref={(r)=>{this.drawWord = r}} data={cd[this.selWord]}/>
         <View style={styles.downView}>
           <TouchableOpacity style={styles.autoWriteBtn} onPress={this.autoWrite.bind(this)}>
             <Text style={styles.autoWriteText}>
@@ -246,6 +302,25 @@ export default class DrawLayout extends Component {
             </Text>
           </TouchableOpacity>
         </View>
+        <View style={styles.downView}>
+          <TouchableOpacity style={styles.autoWriteBtn} onPress={this.onLast.bind(this)}>
+            <Text style={styles.autoWriteText}>
+              上一个
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.restartBtn} onPress={this.onNext.bind(this)}>
+            <Text style={styles.restartText}>
+              下一个
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {/*<View style={styles.downView}>
+          <TouchableOpacity style={styles.restartBtn} onPress={this.onChangeView.bind(this)}>
+            <Text style={styles.restartText}>
+              转到纠正书写
+            </Text>
+          </TouchableOpacity>
+        </View>*/}
       </View>
     );
   }

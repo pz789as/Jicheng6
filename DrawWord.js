@@ -29,7 +29,18 @@ import Utils from './Utils';
 export default class DrawWord extends Component {
   constructor(props){
     super(props);
-    this.data = props.data;
+    this.InitWord(props.data);
+    this.state = {
+      blnUpdate: false
+    };
+  }
+  setUpdate(){
+    this.setState({
+      blnUpdate: !this.blnUpdate,
+    });
+  }
+  InitWord(data){
+    this.data = data;
     this.drawIdx = -1;
     this.Offx = 0;
     this.Offy = 0;
@@ -42,17 +53,7 @@ export default class DrawWord extends Component {
     this.tempDrawData = {};
     this.tempDrawLine = null;
     this.showPoints = [];
-
     this.loadWord();
-    
-    this.state = {
-      blnUpdate: false
-    };
-  }
-  setUpdate(){
-    this.setState({
-      blnUpdate: !this.blnUpdate,
-    });
   }
   loadWord(){
     this.drawIdx = -1;
