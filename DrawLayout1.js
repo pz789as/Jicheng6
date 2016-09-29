@@ -274,6 +274,7 @@ export default class DrawLayout extends Component {
       this.blnCanDraw = true;
     }else if (this.blnCanDraw){
       this.arrOrgPoint.push(pos);
+      var blnSet = false;
       if (this.arrOrgPoint.length > 2){
         var listTemp = [];
         listTemp.push(this.arrOrgPoint[this.arrOrgPoint.length - 3]);
@@ -293,6 +294,7 @@ export default class DrawLayout extends Component {
         //     this.AddSinglePoint(p, this.nowR);
         //   }
         // }
+        blnSet = true;
       }else{
         var count = Utils.DisP(this.lastMousePostion, pos);
         if (count > 1){
@@ -305,8 +307,10 @@ export default class DrawLayout extends Component {
               this.AddSinglePoint(p, this.nowR);
             }
           }
+          blnSet = true;
         }else {
-          this.AddSinglePoint(pos, this.nowR);
+          // this.AddSinglePoint(pos, this.nowR);
+          blnSet = false;
         }
       }
     }
@@ -314,7 +318,9 @@ export default class DrawLayout extends Component {
       this.CompareBihua();
       this.ResetDrawPoint();
     }
-    this.lastMousePostion = this.mousePosition;
+    if (blnSet){
+      this.lastMousePostion = this.mousePosition;
+    }
     this.drawTouch && this.drawTouch.setPoints(this.showPoints);
   }
   AddSinglePoint(pos, r){
@@ -401,7 +407,7 @@ export default class DrawLayout extends Component {
           //   ch.bspArr
           // );
           // console.log(blnIn);
-          if (cValue <= 2 && cAngle <= 90){
+          if (cValue <= 2 && cAngle <= 135){
             var writeAngle = Math.atan2(
               this.arrOrgPoint[this.arrOrgPoint.length-1].y - this.arrOrgPoint[0].y,
               this.arrOrgPoint[this.arrOrgPoint.length-1].x - this.arrOrgPoint[0].x
