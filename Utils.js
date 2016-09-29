@@ -89,7 +89,7 @@ var Utils = {
   CountDistance: function(arg1, arg2){//两点距离
     return Math.round(Math.sqrt(Math.pow(arg1.x - arg2.x, 2) + Math.pow(arg1.y - arg2.y, 2)));
   },
-  CompareGesture1: function(line1, line2){//frechet距离算法，貌似不好用
+  CompareGesture1: function(line1, line2){//frechet距离算法
     Utils.blnGesture = true;
     var nLine1 = Utils.Normalize(line1);
     var nLine2 = Utils.Normalize(line2);

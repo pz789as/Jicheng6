@@ -619,7 +619,8 @@ export default class DrawLayout extends Component {
       return (
         <View style={[
           styles.tipsStyle, 
-          {opacity: opacity}]}>
+          {opacity: opacity}]}
+          pointerEvents={'none'} >
           <Text style={styles.tipsText}>
             {this.tipsText}
           </Text>
