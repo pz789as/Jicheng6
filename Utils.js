@@ -89,6 +89,39 @@ var Utils = {
   CountDistance: function(arg1, arg2){//两点距离
     return Math.round(Math.sqrt(Math.pow(arg1.x - arg2.x, 2) + Math.pow(arg1.y - arg2.y, 2)));
   },
+  CompareGesture1: function(line1, line2){//frechet距离算法，貌似不好用
+    var fval = 0;
+    var ca = [];
+    for(var i=0;i<line1.length;i++){
+      ca.push([]);
+      for(var j=0;j<line2.length;j++){
+        ca[i][j] = -1;
+      }
+    }
+    fval = Utils.CalDistance(line1, line2, ca, line1.length-1, line2.length-1);
+    return fval;
+  },
+  CalDistance: function(line1, line2, arr, i, j){
+    if (arr[i][j] > -1){
+      return arr[i][j];
+    }else if (i==0 && j==0){
+      arr[i][j] = Utils.DisP(line1[0], line2[0]);
+    }else if (i>0 && j==0){
+      arr[i][j] = Math.max(Utils.CalDistance(line1,line2,arr,i-1,0), Utils.DisP(line1[i],line2[0]));
+    }else if (i==0 && j>0){
+      arr[i][j] = Math.max(Utils.CalDistance(line1,line2,arr,0,j-1), Utils.DisP(line1[0],line2[j]));
+    }else if (i>0 && j>0){
+      arr[i][j] = Math.max(
+        Utils.CalDistance(line1,line2,arr,i-1,j),
+        Utils.CalDistance(line1,line2,arr,i-1,j-1),
+        Utils.CalDistance(line1,line2,arr,i,j-1),
+        Utils.DisP(line1[i], line2[j])
+      )
+    }else{
+      arr[i][j] = Number.MAX_VALUE;
+    }
+    return arr[i][j];
+  },
   CompareGesture: function(line1, line2){//比较手势，需要循环比较
     Utils.blnGesture = true;
     var nLine1 = Utils.Normalize(line1);
@@ -241,14 +274,14 @@ var Utils = {
     if (count < 3){
       return false;
     }
-    var i,j,c = false;
+    var i,j,bln = false;
     for(i=0, j=count-1; i<count; j=i++){
       if (((points[i].y > p.y) != (points[j].y > p.y)) &&
         (p.x < (points[j].x - points[i].x)*(p.y - points[i].y)/(points[j].y-points[i].y)+points[i].x)){
-        c = !c;
+        bln = !bln;
       }
     }
-    return c;
+    return bln;
   },
   PAddP: function(a, b){//两点相加
     return {x: a.x + b.x, y: a.y + b.y};

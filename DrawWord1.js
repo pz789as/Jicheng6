@@ -169,19 +169,21 @@ export default class DrawWord extends Component {
       character[i].orgAvgAngle = character[i].orgAngle/orgPoints.length;
 
       character[i].dashPoints = Utils.ResampleByLen(orgPoints, 10);
-      for(var k=0;k<character[i].dashPoints.length;k++){
-        this.showPoints.push(
-          <View style={{
-            position: 'absolute',
-            left: character[i].dashPoints[k].x - 3,
-            top: character[i].dashPoints[k].y - 3,
-            width: 6,
-            height: 6,
-            borderRadius: 3,
-            backgroundColor: 'blue'
-          }}/>
-        );
-      }
+      character[i].dashAngle = Utils.SumAngle(character[i].dashPoints, true);
+      character[i].dashAvgAngle = character[i].dashAngle/character[i].dashPoints.length;
+      // for(var k=0;k<character[i].dashPoints.length;k++){
+      //   this.showPoints.push(
+      //     <View style={{
+      //       position: 'absolute',
+      //       left: character[i].dashPoints[k].x - 3,
+      //       top: character[i].dashPoints[k].y - 3,
+      //       width: 6,
+      //       height: 6,
+      //       borderRadius: 3,
+      //       backgroundColor: 'blue'
+      //     }}/>
+      //   );
+      // }
 
       var line = Path();
       for(var j=0;j<character[i].bspArr.length;j++){

@@ -389,19 +389,19 @@ export default class DrawLayout extends Component {
         }else{
           // Utils.NormalizedPointsCount = 64;
           // var cValue = Utils.CompareGesture(this.arrOrgPoint, this.arrGesture[wi.arrOrder[i]]);
-          var cValue = Utils.CompareGesture(this.arrOrgPoint, ch.orgPoints);
+          var cValue = Utils.CompareGesture(ch.dashPoints, this.arrOrgPoint);
           var cAngle = Utils.SumAngle(this.arrOrgPoint, true);
           var cAvgAngle = cAngle / this.arrOrgPoint.length;
           console.log('相似度：' + cValue, '原始点数量：' + ch.orgPoints.length);
           console.log('书写角度和：' + cAngle, '书写角度均值：' + cAvgAngle);
-          console.log('原始角度和：' + ch.orgAngle, '原始角度均值：' + ch.orgAvgAngle);
-          cAngle = Math.abs(cAngle - ch.orgAngle);
+          console.log('原始角度和：' + ch.dashAngle, '原始角度均值：' + ch.dashAvgAngle);
+          cAngle = Math.abs(cAngle - ch.dashAngle);
           // var blnIn = Utils.PointInPolygon(
           //   Utils.PSubP(this.arrOrgPoint[0],{x:relativeX, y: relativeY}), 
           //   ch.bspArr
           // );
           // console.log(blnIn);
-          if (cValue <= 2 && cAngle <= 180){
+          if (cValue <= 2 && cAngle <= 90){
             var writeAngle = Math.atan2(
               this.arrOrgPoint[this.arrOrgPoint.length-1].y - this.arrOrgPoint[0].y,
               this.arrOrgPoint[this.arrOrgPoint.length-1].x - this.arrOrgPoint[0].x
@@ -429,7 +429,7 @@ export default class DrawLayout extends Component {
         }
       }
       if (showNum == wi.character.length){
-        console.log('书写完毕', cValue);
+        console.log('书写完毕');
         this.setTips('写完啦！');
       }
     }
