@@ -407,14 +407,16 @@ export default class DrawLayout extends Component {
           //   ch.bspArr
           // );
           // console.log(blnIn);
+          // var value = Utils.CompareGesture1(ch.dashPoints, this.arrOrgPoint);
+          // console.log(value);
           if (cValue <= 2 && cAngle <= 135){
             var writeAngle = Math.atan2(
               this.arrOrgPoint[this.arrOrgPoint.length-1].y - this.arrOrgPoint[0].y,
               this.arrOrgPoint[this.arrOrgPoint.length-1].x - this.arrOrgPoint[0].x
             ) * 180 / Math.PI;
             var baseAngle = Math.atan2(
-              ch.orgPoints[ch.orgPoints.length-1].y - ch.orgPoints[0].y,
-              ch.orgPoints[ch.orgPoints.length-1].x - ch.orgPoints[0].x
+              ch.dashPoints[ch.dashPoints.length-1].y - ch.dashPoints[0].y,
+              ch.dashPoints[ch.dashPoints.length-1].x - ch.dashPoints[0].x
             ) * 180 / Math.PI;
             if (Math.abs(writeAngle - baseAngle) > 45){
               console.log('写反啦!', cValue);

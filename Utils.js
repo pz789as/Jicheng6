@@ -90,15 +90,18 @@ var Utils = {
     return Math.round(Math.sqrt(Math.pow(arg1.x - arg2.x, 2) + Math.pow(arg1.y - arg2.y, 2)));
   },
   CompareGesture1: function(line1, line2){//frechet距离算法，貌似不好用
+    Utils.blnGesture = true;
+    var nLine1 = Utils.Normalize(line1);
+    var nLine2 = Utils.Normalize(line2);
     var fval = 0;
     var ca = [];
-    for(var i=0;i<line1.length;i++){
+    for(var i=0;i<nLine1.length;i++){
       ca.push([]);
-      for(var j=0;j<line2.length;j++){
+      for(var j=0;j<nLine2.length;j++){
         ca[i][j] = -1;
       }
     }
-    fval = Utils.CalDistance(line1, line2, ca, line1.length-1, line2.length-1);
+    fval = Utils.CalDistance(nLine1, nLine2, ca, nLine1.length-1, nLine2.length-1);
     return fval;
   },
   CalDistance: function(line1, line2, arr, i, j){
@@ -111,10 +114,10 @@ var Utils = {
     }else if (i==0 && j>0){
       arr[i][j] = Math.max(Utils.CalDistance(line1,line2,arr,0,j-1), Utils.DisP(line1[0],line2[j]));
     }else if (i>0 && j>0){
-      arr[i][j] = Math.max(
+      arr[i][j] = Math.max(Math.min(
         Utils.CalDistance(line1,line2,arr,i-1,j),
         Utils.CalDistance(line1,line2,arr,i-1,j-1),
-        Utils.CalDistance(line1,line2,arr,i,j-1),
+        Utils.CalDistance(line1,line2,arr,i,j-1)),
         Utils.DisP(line1[i], line2[j])
       )
     }else{
