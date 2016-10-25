@@ -14,17 +14,35 @@ import {
 
 import DrawLayout from './DrawLayout';
 import DrawLayout1 from './DrawLayout1';
+import DrawLayout2 from './DrawLayout2';
+
+// function *gen(x){
+//   for(var i=0;i<3;i++){
+//     yield i;
+//   }
+//   var y = yield x + 2;
+//   return y;
+// };
 
 class Jicheng6 extends Component {
   constructor(props){
     super(props);
     this.state = {
-      kind: 1,
+      kind: 2,
     };
+    // var g = gen(1);
+    // console.log(g.next());
+    // console.log(g.next());
+    // console.log(g.next());
+    // console.log(g.next());
+    // console.log(g.next(1));
+    // var a = 1;
+    // var b = 1;
+    // console.log(Object.is(a,b));
   }
   onChangeModule(){
     this.setState({
-      kind: (this.state.kind + 1)%2, 
+      kind: (this.state.kind + 1)%3, 
     });
   }
   render() {
@@ -37,8 +55,10 @@ class Jicheng6 extends Component {
   getRender(){
     if (this.state.kind == 0){
       return <DrawLayout onPress={this.onChangeModule.bind(this)}/>; 
-    }else{
-      return <DrawLayout1 onPress={this.onChangeModule.bind(this)}/>
+    }else if (this.state.kind == 1) {
+      return <DrawLayout1 onPress={this.onChangeModule.bind(this)}/>;
+    }else if (this.state.kind == 2){
+      return <DrawLayout2 onPress={this.onChangeModule.bind(this)}/>;
     }
   }
 }

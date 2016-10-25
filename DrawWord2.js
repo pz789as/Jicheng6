@@ -28,7 +28,7 @@ import Utils from './Utils';
 
 let animMoveTime = 10;
 
-export default class DrawWord1 extends Component {
+export default class DrawWord2 extends Component {
   constructor(props){
     super(props);
     this.state = {

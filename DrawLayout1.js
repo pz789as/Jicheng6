@@ -78,7 +78,7 @@ let cd = {
   '问': require('./data/问.json'),
 };
 
-export default class DrawLayout extends Component {
+export default class DrawLayout1 extends Component {
   constructor(props){
     super(props);
     this._panResponder = {};

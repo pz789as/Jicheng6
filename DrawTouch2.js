@@ -26,7 +26,7 @@ const {
   ClippingRectangle,
 } = ART;
 
-export default class DrawTouch1 extends Component {
+export default class DrawTouch2 extends Component {
   constructor(props){
     super(props);
     this.points = this.props.data;
