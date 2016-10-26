@@ -11,7 +11,7 @@ import {
 import Dimensions from 'Dimensions';
 global.ScreenWidth = global.ScreenWidth || Dimensions.get('window').width;
 global.ScreenHeight = global.ScreenHeight || Dimensions.get('window').height;
-global.curWidth = global.curWidth || Math.min(ScreenWidth, ScreenHeight);
+global.curWidth = global.curWidth || Math.min(ScreenWidth/4, ScreenHeight);
 global.scaleWidth = global.scaleWidth || curWidth / 400;
 global.minUnit = global.minUnit || ScreenWidth / 100;
 global.unitDisSt = global.unitDisSt || curWidth / 25;

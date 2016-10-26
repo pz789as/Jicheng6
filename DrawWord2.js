@@ -9,6 +9,7 @@ import {
   StyleSheet,
   View,
   ART,
+  PanResponder,
 } from 'react-native';
 
 const {
@@ -26,433 +27,204 @@ const {
 
 import Utils from './Utils';
 
-let animMoveTime = 10;
+let cv = {
+  stop: 0,
+  play: 1,
+  pause: 2,
+};
 
 export default class DrawWord2 extends Component {
   constructor(props){
     super(props);
+    this.wordData = [];
+    this.strokeIndex = 0;
+    this.strokeTime = 0;
+    this.strokeWidth = props.strokeWidth ? props.strokeWidth : 2;
+    this.backColor = props.backColor ? props.backColor : '#bbb';
+    this.frontColor = props.frontColor ? props.frontColor : '#222';
+    this.redio = props.stdWidth / 1000;//缩放
+    this.perdio = this.redio * 700;//速度
+    this.status = cv.stop;
+    this.initData(props.data);
     this.state = {
       blnUpdate: false
     };
-    this._autoUpdata = setInterval(this.autoUpdate.bind(this), 1/60);
-    this.initWord(props.data);
+    this._panResponder = {};
+    this.mousePosition = {};
+    this._autoUpdata = setInterval(this.autoUpdate.bind(this), 1.0/60);
+  }
+  initData(data){
+    for(var i=0;i<data.length;i++){
+      var d = data[i].split(' ');
+      var points = [];
+      var len = 0;
+      var runTime = 0;
+      var p = null;
+      for(var j=0;j<d.length;){
+        var np = {
+          x: (parseInt(d[j + 1])) * this.redio,
+          y: (parseInt(d[j + 2])) * this.redio
+        };
+        if (this.props.blnRandom){
+          np.x += Math.random() * 2;
+          np.y += Math.random() * 2;
+        }
+        if (p != null){
+          len += Utils.DisP(p, np);
+        }
+        p = np;
+        points.push(p);
+        j+=3;
+      }
+      runTime = len / this.perdio;
+      this.wordData.push({
+        'points': points,
+        'len': len,
+        'runTime': runTime,
+        'show': false,
+      });
+    }
+    this.status = cv.play;
   }
   setUpdate(){
     this.setState({
       blnUpdate: !this.blnUpdate,
     });
   }
-  initWord(data){
-    this.data = data;
-    this.drawIdx = -1;
-    this.Offx = 0;
-    this.Offy = 0;
-    this.minDisStart = Number.MAX_VALUE;
-    this.minDisEnd = Number.MAX_VALUE;
-    this.startIdx = -1;
-    this.endIdx = -1;
-    this.max_Step = 0;
-    this.now_Step = 0;
-    this.tempDrawData = {};
-    this.tempDrawLine = null;
-    this.showPoints = [];
-    this.loadWord();
-  }
-  loadWord(){
-    this.drawIdx = -1;
-    var character = this.data.character;
-    console.log("笔画数：" + character.length);
-    this.arrLine = [];
-    this.tempArrLine = [];
-    for(var i=0;i<character.length;i++){
-      character[i].isShow = false;
-      var points = character[i].points;
-      for(var k=0;k<points.length;k++){
-        if (points[k].pos == 1){
-          this.startPoint = points[k];
-        }else if (points[k].pos == 2){
-          this.endPoint = points[k];
-        }
-      }
-      this.minDisStart = Number.MAX_VALUE;
-      this.minDisEnd = Number.MAX_VALUE;
-      this.startIdx = -1;
-      this.endIdx = -1;
-      var smoothBSPArr = [];
-      var loc1 = 2;
-      var len = points.length;
-      while(loc1 < len - 1){
-        this.BSPLineSmooth(smoothBSPArr, points[loc1-2], points[loc1-1], points[loc1], points[loc1+1]);
-        ++loc1;
-      }
-      if (len >= 4){
-        this.BSPLineSmooth(smoothBSPArr, points[len-3], points[len-2], points[len-1], points[0]);
-        this.BSPLineSmooth(smoothBSPArr, points[len-2], points[len-1], points[0], points[1]);
-        this.BSPLineSmooth(smoothBSPArr, points[len-1], points[0], points[1], points[2]);
-      }else{
-        smoothBSPArr.push(points[1]);
-        smoothBSPArr.push(points[2]);
-      }
-      smoothBSPArr[this.startIdx].pos = 1;
-      smoothBSPArr[this.endIdx].pos = 2;
-      character[i].bspArr = smoothBSPArr;
-      character[i].color = 'rgb(255,0,0)';
-
-      var loc2 = -1;
-      var loc3 = -1;
-      var loc4 = smoothBSPArr;
-      var upPoints = [];
-      var downPoints = [];
-      loc1 = 0;
-      while (loc1 < loc4.length) {
-        if (loc4[loc1].pos != 1) {
-          if (loc4[loc1].pos == 2)
-            loc3 = loc1;
-        }
-        else
-          loc2 = loc1;
-        ++loc1;
-      }
-      if (loc2 != -1 && loc3 != -1) {
-        var loc5 = 0;
-        loc1 = loc2;
-        while (loc5 < loc4.length) {
-          upPoints.push(loc4[loc1]);
-          if (loc1 == loc3) {
-            break;
-          }
-          if (loc1 == loc4.length - 1)
-            loc1 = -1;
-          ++loc1;
-          ++loc5;
-        }
-        loc5 = 0;
-        loc1 = loc3;
-        while (loc5 < loc4.length) {
-          downPoints.unshift(loc4[loc1]);
-          if (loc1 == loc2) {
-            break;
-          }
-          if (loc1 == loc4.length - 1)
-            loc1 = -1;
-          ++loc5;
-          ++loc1;
-        }
-      }
-      character[i].upPoints = upPoints;
-      character[i].downPoints = downPoints;
-
-      var m_step = Math.min(upPoints.length, downPoints.length);
-      var dot_step = 0;
-      var up_step = 0;
-      var down_step = 0;
-      dot_step++;
-      var orgPoints = [];
-      var x = (upPoints[0].x + downPoints[0].x) / 2;
-      var y = (upPoints[0].y + downPoints[0].y) / 2;
-      orgPoints.push({'x':x, 'y':y});
-      while (dot_step < m_step) {
-        up_step = parseInt(dot_step * upPoints.length / m_step);
-        down_step = parseInt(dot_step * downPoints.length / m_step);
-        if (dot_step % 10 == 0) {
-          x = (upPoints[up_step].x + downPoints[down_step].x) / 2;
-          y = (upPoints[up_step].y + downPoints[down_step].y) / 2;
-          orgPoints.push({'x':x, 'y':y});
-        }
-        ++dot_step;
-      }
-      x = (upPoints[up_step - 1].x + downPoints[down_step - 1].x) / 2;
-      y = (upPoints[up_step - 1].y + downPoints[down_step - 1].y) / 2;
-      orgPoints.push({'x': x, 'y': y});
-      character[i].orgPoints = orgPoints;
-      character[i].orgAngle = Utils.SumAngle(orgPoints, true);
-      character[i].orgAvgAngle = character[i].orgAngle/orgPoints.length;
-
-      character[i].dashPoints = Utils.ResampleByLen(orgPoints, 10);
-      character[i].dashAngle = Utils.SumAngle(character[i].dashPoints, true);
-      character[i].dashAvgAngle = character[i].dashAngle/character[i].dashPoints.length;
-      // for(var k=0;k<character[i].dashPoints.length;k++){
-      //   this.showPoints.push(
-      //     <View style={{
-      //       position: 'absolute',
-      //       left: character[i].dashPoints[k].x - 3,
-      //       top: character[i].dashPoints[k].y - 3,
-      //       width: 6,
-      //       height: 6,
-      //       borderRadius: 3,
-      //       backgroundColor: 'blue'
-      //     }}/>
-      //   );
-      // }
-
-      var line = Path();
-      for(var j=0;j<character[i].bspArr.length;j++){
-        var point = character[i].bspArr[j];
-        if (j==0){
-          line.moveTo(point.x, point.y);
-        }else{
-          line.lineTo(point.x, point.y);
-        }
-      }
-      character[i].line = line;
-
-      this.arrLine.push(
-        <Shape key={i} d={line} fill={character[i].color} />
-      );
-      this.tempArrLine.push(
-        <Shape key={i} d={line} fill={character[i].color} />
-      );
-    }
-  }
-  BSPLineSmooth(arg1, arg2, arg3, arg4, arg5)
-  {
-    var loc5 = {};
-    var loc8 = 0;
-    var loc1 = [];
-    var loc2 = [];
-    loc1.push((-arg2.x + 3 * arg3.x - 3 * arg4.x + arg5.x) / 6);
-    loc1.push((3 * arg2.x - 6 * arg3.x + 3 * arg4.x) / 6);
-    loc1.push((-3 * arg2.x + 3 * arg4.x) / 6);
-    loc1.push((arg2.x + 4 * arg3.x + arg4.x) / 6);
-    loc2.push((-arg2.y + 3 * arg3.y - 3 * arg4.y + arg5.y) / 6);
-    loc2.push((3 * arg2.y - 6 * arg3.y + 3 * arg4.y) / 6);
-    loc2.push((-3 * arg2.y + 3 * arg4.y) / 6);
-    loc2.push((arg2.y + 4 * arg3.y + arg4.y) / 6);
-    var loc3 = [];
-    var loc4 = [];
-    loc3.push(loc1[3]);
-    loc4.push(loc2[3]);
-    loc5 = {};
-    loc5.x = loc1[3];
-    loc5.y = loc2[3];
-    loc5.pos = arg3.pos;
-    loc5.org = arg3.org;
-    arg1.push(loc5);
-
-    var dis = Utils.DisP(loc5, this.startPoint);
-    if (dis < this.minDisStart) {
-      this.minDisStart = dis;
-      this.startIdx = arg1.length - 1;
-    }
-    dis = Utils.DisP(loc5, this.endPoint);
-    if (dis < this.minDisEnd) {
-      this.minDisEnd = dis;
-      this.endIdx = arg1.length - 1;
-    }
-
-    var loc6 = parseInt(this.CountDistance(arg3, arg4));
-    var loc7 = 1;
-    while (loc7 < loc6) {
-      loc8 = loc7 / loc6;
-      loc3.push(loc1[3] + loc8 * (loc1[2] + loc8 * (loc1[1] + loc8 * loc1[0])));
-      loc4.push(loc2[3] + loc8 * (loc2[2] + loc8 * (loc2[1] + loc8 * loc2[0])));
-      loc5 = {};
-      loc5.x = loc3[loc7];
-      loc5.y = loc4[loc7];
-      loc5.pos = 0;
-      if (arg3.pos == 3){
-        loc5.org = 2;
-      }
-      arg1.push(loc5);
-      ++loc7;
-
-      dis = Utils.DisP(loc5, this.startPoint);
-      if (dis < this.minDisStart) {
-        this.minDisStart = dis;
-        this.startIdx = arg1.length - 1;
-      }
-      dis = Utils.DisP(loc5, this.endPoint);
-      if (dis < this.minDisEnd) {
-        this.minDisEnd = dis;
-        this.endIdx = arg1.length - 1;
-      }
-    }
-  }
-  CountDistance(arg1, arg2){
-    return Math.round(Math.sqrt(Math.pow(arg1.x - arg2.x, 2) + Math.pow(arg1.y - arg2.y, 2)));
-  }
-  setBeginDraw(){
-    var bh = this.data.character[this.drawIdx];
-    this.max_Step = Math.min(bh.upPoints.length, bh.downPoints.length);
-    this.now_Step = 0;
-  }
-  DrawingPecent(per){
-    var bh = this.data.character[this.drawIdx];
-    this.now_Step = per;
-    var up_step = parseInt(per * bh.upPoints.length);
-    var down_step = parseInt(per * bh.downPoints.length);
-    up_step = Math.min(up_step, bh.upPoints.length-1);
-    down_step = Math.min(down_step, bh.downPoints.length-1);
-    this.tempDrawData.points = [];
-    for(var i=0;i<up_step;i++){
-      this.tempDrawData.points.push(bh.upPoints[i]);
-    }
-    for(var i=down_step;i>=0;i--){
-      this.tempDrawData.points.push(bh.downPoints[i]);
-    }
-    var line = Path();
-    for(var j=0;j<this.tempDrawData.points.length;j++){
-      var point = this.tempDrawData.points[j];
-      if (j==0){
-        line.moveTo(point.x, point.y);
-      }else{
-        line.lineTo(point.x, point.y);
-      }
-    }
-    this.tempDrawData.color = 'rgb(0,0,0)';
-    this.tempDrawLine = (
-      <Shape d={line} fill={this.tempDrawData.color}/>
-    );
-    this.setUpdate();
-  }
-  setEndDraw(){
-    var character = this.data.character;
-    this.arrLine[this.drawIdx] = (
-      <Shape key={this.drawIdx} d={character[this.drawIdx].line} fill={this.tempDrawData.color}/>
-    );
-    this.tempDrawLine = null;
-    this.setUpdate();
-  }
-  setRestart(){
-    var character = this.data.character;
-    for(var i=0;i<character.length;i++){
-      this.arrLine[i] = (
-        <Shape key={i} d={character[i].line} fill={character[i].color}/>
-      );
-      this.tempArrLine[i] = (
-        <Shape key={i} d={character[i].line} fill={character[i].color}/>
-      );
-      character[i].isShow = false;
-      character[i].isAnim = false;
-    }
-    this.tempDrawLine = null;
-    this.drawIdx = 0;
-    this.setBeginDraw();
-    
-    if (this.blnBlink){
-      this.stopBlink();
-    }else{
-      this.setUpdate();
-    }
-  }
-  stopBlink(){
-    this.blnBlink = false;
-    var character = this.data.character;
-    var color = character[this.blinkIdx].color;
-    this.arrLine[this.blinkIdx] = (
-      <Shape key={this.blinkIdx} d={character[this.blinkIdx].line} fill={color}/>
-    );
-    this._blinkTime && clearTimeout(this._blinkTime);
-    this.setUpdate();
-  }
-  setStrokeBlink(){
-    if (!this.blnBlink){
-      this.blnBlink = true;
-      this.blinkIdx = this.drawIdx;
-      this.blinkFrame = 0;
-      this.blinkUpdate();
-    }
-  }
-  blinkUpdate(){
-    if (this.blnBlink){
-      this.blinkFrame++;
-      var character = this.data.character;
-      var color =  this.blinkFrame % 2 == 0 ? 'rgb(100,0,0)' : 'rgb(255,0,0)';
-      this.arrLine[this.blinkIdx] = (
-        <Shape key={this.blinkIdx} d={character[this.blinkIdx].line} fill={color}/>
-      );
-      this.setUpdate();
-    
-      if (this.blinkFrame <= 8){
-        this._blinkTime = setTimeout(this.blinkUpdate.bind(this), 200);
-      }else{
-        this.stopBlink();
-      }
-    }
-  }
   autoUpdate(){
-    var bln = false;
-    var character = this.data.character;
-    for(var i=0;i<character.length;i++){
-      if (character[i].isShow){
-        if (character[i].isAnim){
-          var d = new Path();
-          character[i].animTime++;
-          for(var k=0;k<character[i].newPoints.length;k++){
-            var p = character[i].newPoints[k];
-            p = Utils.LerpP(p, character[i].bspArr[k], character[i].animTime/animMoveTime);
-            if (k==0){
-              d.moveTo(p.x, p.y);
-            }else{
-              d.lineTo(p.x, p.y);
-            }
+    if (this.status == cv.play){
+      if (this.strokeIndex < this.wordData.length){
+        this.strokeTime++;
+        if (this.strokeTime / 60 >= this.wordData[this.strokeIndex].runTime){
+          this.wordData[this.strokeIndex].show = true;
+          this.strokeIndex++;
+          this.strokeTime = 0;
+          if (this.strokeIndex == this.wordData.length){
+            this.status = cv.stop;
           }
-          this.tempArrLine[i] = (
-            <Shape key={i} d={d} fill={'black'} />
-          )
-          if (character[i].animTime >= animMoveTime){
-            character[i].isAnim = false;
-          }
-          bln = true;
         }
+        this.setUpdate();
       }
     }
-    if (bln){
-      this.setUpdate();
-    }
+  }
+  componentWillMount() {
+    this._panResponder = PanResponder.create({
+      onStartShouldSetPanResponder: this.onStartShouldSetPanResponder.bind(this),
+      onMoveShouldSetPanResponder: this.onMoveShouldSetPanResponder.bind(this),
+      onPanResponderGrant: this.onPanResponderGrant.bind(this),
+      onPanResponderMove: this.onPanResponderMove.bind(this),
+      onPanResponderRelease: this.onPanResponderRelease.bind(this),
+      onPanResponderTerminate: this.onPanResponderTerminate.bind(this),
+    });
   }
   componentDidMount() {
-    this.drawIdx = 0;
-    this.setBeginDraw();
   }
   componentWillUnmount() {
-    this._blinkTime && clearTimeout(this._blinkTime);
     this._autoUpdata && clearInterval(this._autoUpdata);
   }
-  SetAnimation(idx, points){
-    if (this.drawIdx == this.data.character.length){
-      return;
-    }
-    this.drawIdx = Math.min(this.data.character.length, idx+1);
-    var center = Utils.ImageCenter(points);
-    center = Utils.PSubP(center, {x:relativeX, y: relativeY});
-    var start = points[0];
-    var end = points[points.length - 1];
-    var character = this.data.character;
-    var movePos = Utils.PSubP(center, character[idx].center);
-    var newPoints = [];
-    var scale = Utils.DisP(start, end) / Utils.DisP(character[idx].orgPoints[0], character[idx].orgPoints[character[idx].orgPoints.length - 1]);
-    newPoints = newPoints.concat(character[idx].bspArr);
-    for(var i=0;i<newPoints.length;i++){
-      newPoints[i] = Utils.PAddP(newPoints[i], movePos);
-      var p = Utils.PSubP(newPoints[i], center);
-      p = Utils.PMulV(p, scale);
-      newPoints[i] = Utils.PAddP(center, p);
-    }
-    character[idx].newPoints = newPoints;
-    character[idx].isShow = true;
-    character[idx].isAnim = true;
-    character[idx].animTime = 0;
+  onStartShouldSetPanResponder(e, g){
+    console.log(e.nativeEvent.target);
+    return true;
   }
-  drawTempLine(){
-    var arr = [];
-    for(var i=0;i<this.data.character.length;i++){
-      if (this.data.character[i].isShow){
-        arr.push(this.tempArrLine[i]);
-      }
+  onMoveShouldSetPanResponder(e, g){
+    return true;
+  }
+  onPanResponderGrant(e, g){
+    if (g.numberActiveTouches == 1){
+      this.mousePosition = {
+        x: e.nativeEvent.locationX,
+        y: e.nativeEvent.locationY
+      };
+      console.log(this.mousePosition);
     }
-    return arr;
+  }
+  onPanResponderMove(e, g){
+    if (g.numberActiveTouches == 1){
+      this.mousePosition = {
+        x: e.nativeEvent.locationX,
+        y: e.nativeEvent.locationY
+      };
+    }
+  }
+  onPanResponderRelease(e, g){
+    this.endPanResponder(e, g);
+  }
+  onPanResponderTerminate(e, g){
+    this.endPanResponder(e, g);
+  }
+  endPanResponder(e, g){
+    this.mousePosition = {
+      x: e.nativeEvent.locationX,
+      y: e.nativeEvent.locationY
+    };
   }
   
   render() {
+    var backLine = [];
+    var showLine = [];
+    var showPoints = [];
+    var strokeWidth = 2;
+    var spi = 0;
+    for(var i=0;i<this.wordData.length;i++){
+      var perT = this.strokeTime / 60 / this.wordData[i].runTime;
+      var perD = perT * this.wordData[i].len;
+      var p = new Path();
+      var phalf = new Path();
+      var point = null, lpoint = null;
+      for(var j=0;j<this.wordData[i].points.length;j++){
+        point = {
+          x: this.wordData[i].points[j].x, 
+          y: this.wordData[i].points[j].y
+        };
+        var pp = new Path();
+        pp.moveTo(point.x, point.y - 3)
+            .arc(0,6,3)
+            .arc(0,-6,3)
+            .close();
+        showPoints.push(
+          <Shape key={spi} d={pp} fill={'#f00'}/>
+        );
+        spi++;
+        if (j==0){
+          p.moveTo(point.x, point.y);
+          if (i == this.strokeIndex){
+            phalf.moveTo(point.x, point.y);
+          }
+        }else {
+          p.lineTo(point.x, point.y);
+          if (i == this.strokeIndex && perD > 0){
+            var dis = Utils.DisP(lpoint, point);
+            if (perD > dis){
+              phalf.lineTo(point.x, point.y);
+            }else {
+              var halfp = Utils.LerpP(lpoint, point, perD / dis);
+              phalf.lineTo(halfp.x, halfp.y);
+            }
+            perD -= dis;
+          }
+        }
+        lpoint = point;
+      }
+      backLine.push(
+        <Shape key={i} d={p} stroke={'#bbb'} strokeWidth={strokeWidth}/>
+      );
+      if (i == this.strokeIndex){
+        showLine.push(
+          <Shape key={i} d={phalf} stroke={'#222'} strokeWidth={strokeWidth}/>
+        );
+      }else if (this.wordData[i].show) {
+        showLine.push(
+          <Shape key={i} d={p} stroke={'#222'} strokeWidth={strokeWidth}/>
+        );
+      }
+    }
     return (
-      <View style={[styles.container, this.props.style? this.props.style : {}]}>
-        <Surface ref={'lineView'} width={curWidth} height={curWidth}>
-          {this.arrLine}
-          {this.tempDrawLine}
-          {this.drawTempLine()}
+      <View style={[styles.container, this.props.style? this.props.style : {}]} {...this._panResponder.panHandlers}>
+        <Surface ref={'lineView'} width={this.props.stdWidth} height={this.props.stdWidth}>
+          {backLine}
+          {showLine}
+          {this.props.blnSp ? showPoints : null}
         </Surface>
-        {this.showPoints}
       </View>
     );
   }
