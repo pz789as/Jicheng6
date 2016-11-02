@@ -91,6 +91,15 @@ export default class DrawWord2 extends Component {
       blnUpdate: !this.blnUpdate,
     });
   }
+  restart(){
+    this.status = cv.play;
+    this.strokeIndex = 0;
+    this.strokeTime = 0;
+    for(var i=0;i<this.wordData.length;i++){
+      this.wordData[i].show = false;
+    }
+    this.setUpdate();
+  }
   autoUpdate(){
     if (this.status == cv.play){
       if (this.strokeIndex < this.wordData.length){

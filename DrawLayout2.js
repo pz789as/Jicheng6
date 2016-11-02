@@ -78,8 +78,6 @@ let data = [
   // 'M 650 495 L 670 486 L 699 471 L 732 457 L 760 449 L 778 453 L 778 453 L 781 473 L 775 505 L 765 543 L 755 583 L 750 617 L 750 617 L 751 648 L 755 678 L 761 707 L 769 733 L 778 756 L 778 756 L 790 775 L 804 790 L 820 803 L 835 813 L 850 821 L 850 821 L 864 828 L 879 832 L 893 835 L 905 833 L 913 826 L 913 826 L 917 811 L 918 788 L 916 763 L 914 740 L 913 725',
   // 'M 655 601 L 663 611 L 676 626 L 689 642 L 702 657 L 710 667',
 ];
-let redio = curWidth / 1000;
-let perdio = redio * 700;
 
 export default class DrawLayout2 extends Component {
   constructor(props){
@@ -92,6 +90,8 @@ export default class DrawLayout2 extends Component {
     this.state={
       blnUpdate: false,
     };
+    this.duo = require('./SingleData/唐.json');
+    this.shao = require('./SingleData/赢.json');
   }
   setUpdate(){
     this.setState({
@@ -162,15 +162,26 @@ export default class DrawLayout2 extends Component {
     this.blnShowPoints = !this.blnShowPoints;
     this.setUpdate();
   }
+  restart(){
+    if (this.dw1){
+      this.dw1.restart();
+      this.dw2.restart();
+    }
+  }
   render() {
-    var w = 300;
+    var w = 100;
     return (
       <View style={styles.container} pointerEvents={'box-none'}>
-        <DrawWord data={data1} strokeWidth={2} stdWidth={w} blnSp={this.blnShowPoints} style={{width:w, height: w}}/>
-        <DrawWord data={data2} strokeWidth={2} stdWidth={w} blnSp={this.blnShowPoints} style={{width:w, height: w}}/>
+        <DrawWord ref={r=>{this.dw1 = r}} data={this.duo} strokeWidth={2} stdWidth={w} blnSp={this.blnShowPoints} style={{width:w, height: w}}/>
+        <DrawWord ref={r=>{this.dw2 = r}} data={this.shao} strokeWidth={2} stdWidth={w} blnSp={this.blnShowPoints} style={{width:w, height: w}}/>
         <TouchableOpacity onPress={this.showPoints.bind(this)}>
           <Text style={styles.buttonTextStyle}>
             显示点
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={this.restart.bind(this)}>
+          <Text style={styles.buttonTextStyle}>
+            重新开始
           </Text>
         </TouchableOpacity>
       </View>
