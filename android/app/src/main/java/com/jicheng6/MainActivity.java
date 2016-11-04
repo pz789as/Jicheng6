@@ -1,6 +1,7 @@
 package com.jicheng6;
 
 import com.facebook.react.ReactActivity;
+import com.chirag.RNMail.RNMail;
 
 public class MainActivity extends ReactActivity {
 

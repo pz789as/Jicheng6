@@ -13,6 +13,8 @@ import {
   TouchableOpacity,
   StatusBar,
   ART,
+  Linking,
+  Alert,
 } from 'react-native';
 
 const {
@@ -31,6 +33,8 @@ const {
 import Utils from './Utils';
 import DrawWord from './DrawWord2';
 import DrawTouch from './DrawTouch2';
+import SendSMS from './SendSMS';
+import SendEmail from './SendEmail';
 
 let cv = {
   status_norm: 0,
@@ -168,22 +172,101 @@ export default class DrawLayout2 extends Component {
       this.dw2.restart();
     }
   }
+  openUrl(){
+    var url = 'http://www.5ying1ss.cm';
+    // Linking.openURL(url)
+    // .catch((err)=>{
+    //   console.log('An error occurred', err);
+    // });
+
+    Linking.canOpenURL(url)
+    .then((supported)=>{
+      if (!supported){
+        console.log('Can\'t handle url: ' + url);
+        Alert.alert(
+          '提示', 
+          'Can\'t handle url: ' + url,
+          [
+            {text: 'OK', onPress:()=>{}}
+          ]
+        );
+      }else{
+        return Linking.openURL(url);
+      }
+    })
+    .catch((err)=>{
+      console.log('An error occurred', err);
+      Alert.alert(
+        '提示', 
+        'An error occurred: ' + err,
+        [
+          {text: 'OK', onPress:()=>{}}
+        ]
+      );
+    });
+  }
+  openAppStore(){
+    var url = 'itms-apps://';
+    //url = 'itms-apps://ax.itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?mt=8&onlyLatestVersion=true&pageNumber=0&sortOrdering=1&type=Purple+Software&id=APP_ID';
+    //后面有个APP_ID，填写个人的APP_ID就可以跳转到评论地址了
+
+    Linking.canOpenURL(url)
+    .then((supported)=>{
+      if (!supported){
+        console.log('Can\'t handle url: ' + url);
+        Alert.alert(
+          '提示', 
+          'Can\'t handle url: ' + url,
+          [
+            {text: 'OK', onPress:()=>{}}
+          ]
+        );
+      }else{
+        return Linking.openURL(url);
+      }
+    })
+    .catch((err)=>{
+      console.log('An error occurred', err);
+      Alert.alert(
+        '提示', 
+        'An error occurred: ' + err,
+        [
+          {text: 'OK', onPress:()=>{}}
+        ]
+      );
+    });
+  }
+  sendSMS(){
+    var url = "sms:13675193708";
+  }
   render() {
     var w = 100;
+    //<DrawWord ref={r=>{this.dw1 = r}} data={this.duo} strokeWidth={2} stdWidth={w} blnSp={this.blnShowPoints} style={{width:w, height: w}}/>
+    //<DrawWord ref={r=>{this.dw2 = r}} data={this.shao} strokeWidth={2} stdWidth={w} blnSp={this.blnShowPoints} style={{width:w, height: w}}/>
+    // <TouchableOpacity onPress={this.showPoints.bind(this)}>
+    //       <Text style={styles.buttonTextStyle}>
+    //         显示点
+    //       </Text>
+    //     </TouchableOpacity>
+    //     <TouchableOpacity onPress={this.restart.bind(this)}>
+    //       <Text style={[styles.buttonTextStyle, {marginTop: 10}]}>
+    //         重新开始
+    //       </Text>
+    //     </TouchableOpacity>
     return (
       <View style={styles.container} pointerEvents={'box-none'}>
-        <DrawWord ref={r=>{this.dw1 = r}} data={this.duo} strokeWidth={2} stdWidth={w} blnSp={this.blnShowPoints} style={{width:w, height: w}}/>
-        <DrawWord ref={r=>{this.dw2 = r}} data={this.shao} strokeWidth={2} stdWidth={w} blnSp={this.blnShowPoints} style={{width:w, height: w}}/>
-        <TouchableOpacity onPress={this.showPoints.bind(this)}>
-          <Text style={styles.buttonTextStyle}>
-            显示点
+        <TouchableOpacity onPress={this.openUrl.bind(this)}>
+          <Text style={[styles.buttonTextStyle, {marginTop: 10}]}>
+            打开网址
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={this.restart.bind(this)}>
-          <Text style={styles.buttonTextStyle}>
-            重新开始
+        <TouchableOpacity onPress={this.openAppStore.bind(this)}>
+          <Text style={[styles.buttonTextStyle, {marginTop: 10}]}>
+            打开App Store
           </Text>
         </TouchableOpacity>
+        <SendSMS style={{marginTop: 10}}/>
+        <SendEmail style={{marginTop: 10}}/>
       </View>
     );
   }
