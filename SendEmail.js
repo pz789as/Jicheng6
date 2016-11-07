@@ -29,6 +29,8 @@ export default class SendEmail extends Component {
             verifyCode: '',
             blnUpdate: false,
             blnShowVerify: false,
+            name: '快攻',
+            content: '这是建议啊！建议！',
         };
         this.isConnected = false;
         this.tempServerData = null;
@@ -108,6 +110,14 @@ export default class SendEmail extends Component {
                 Alert.alert(
                     '提示',
                     '发送成功！',
+                    [
+                        { text: 'OK', onPress: () => console.log('OK Pressed!') },
+                    ]
+                );
+            }else if (serverJson.code == 2){
+                Alert.alert(
+                    '发送成功',
+                    '谢谢您的建议！',
                     [
                         { text: 'OK', onPress: () => console.log('OK Pressed!') },
                     ]
@@ -242,10 +252,70 @@ export default class SendEmail extends Component {
             );
         }
     }
+    onChangeName(text){
+        this.setState({
+            name: text
+        });
+    }
+    onChangeContent(text){
+        this.setState({
+            content: text
+        });
+    }
+    onSubmitPut(){
+        var etips = ''
+        if (this.state.name == '' || this.state.content == '') {
+            etips = '名字或者内容为空！';
+        } else {
+            //可以判断其他情况，输入不合格的字符串之类的
+        }
+        if (etips != '') {
+            Alert.alert(
+                '提示',
+                etips,
+                [
+                    { text: "确定", onPress: () => { } }
+                ]
+            );
+        } else {
+            if (this.isConnected) {
+                this.tempServerData = null;
+                this.client.send(`{"code": 1, "name": "${this.state.name}", "msg":"${this.state.content}"}`);
+            } else {
+                Alert.alert(
+                    '提示',
+                    '未连接服务器，请重新启动！',
+                    [
+                        { text: "确定", onPress: () => { } }
+                    ]
+                );
+            }
+        }
+    }
     render() {
         return (
             <View style={[styles.container, this.props.style ? this.props.style : {}]}>
                 <View style={styles.viewStyle}>
+                    <TextInput style={styles.textInputStyle}
+                        onChangeText={this.onChangeName.bind(this)}
+                        value={this.state.name}
+                        placeholder={'请输入名字'} />
+                    <TouchableOpacity onPress={this.onSubmitPut.bind(this)}>
+                        <View style={[styles.sendButtonView, {}]}>
+                            <Text style={styles.sendButtonText}>
+                                提交
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+                <View style={[styles.viewStyle, {marginTop: 2}]}>
+                    <TextInput style={styles.contentStyle}
+                        onChangeText={this.onChangeContent.bind(this)}
+                        value={this.state.content}
+                        placeholder={'请输入建议'}
+                        multiline={true} />
+                </View>
+                <View style={[styles.viewStyle, {marginTop: 10}]}>
                     <TextInput style={styles.textInputStyle}
                         onChangeText={this.onTextChange.bind(this)}
                         value={this.state.emailPath}
@@ -260,20 +330,20 @@ export default class SendEmail extends Component {
                     </TouchableOpacity>
                 </View>
                 {!this.state.blnShowVerify ? null : 
-                <View style={[styles.viewStyle, {marginTop: 5}]}>
-                    <TextInput style={styles.textInputStyle}
-                        onChangeText={this.onChangeVerifyCode.bind(this)}
-                        value={this.state.verifyCode}
-                        placeholder={'请输入验证码'}
-                        onSubmitEditing={this.onSubmitOK.bind(this)} />
-                    <TouchableOpacity onPress={this.onSubmitOK.bind(this)}>
-                        <View style={[styles.sendButtonView, {}]}>
-                            <Text style={styles.sendButtonText}>
-                                确定
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
+                    <View style={[styles.viewStyle, {marginTop: 5}]}>
+                        <TextInput style={styles.textInputStyle}
+                            onChangeText={this.onChangeVerifyCode.bind(this)}
+                            value={this.state.verifyCode}
+                            placeholder={'请输入验证码'}
+                            onSubmitEditing={this.onSubmitOK.bind(this)} />
+                        <TouchableOpacity onPress={this.onSubmitOK.bind(this)}>
+                            <View style={[styles.sendButtonView, {}]}>
+                                <Text style={styles.sendButtonText}>
+                                    确定
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
                 }
             </View>
         );
@@ -283,7 +353,7 @@ export default class SendEmail extends Component {
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
-        height: 66,
+        height: 199,
     },
     viewStyle:{
         justifyContent: 'center',
@@ -312,5 +382,12 @@ const styles = StyleSheet.create({
     sendButtonText: {
         fontSize: 20,
         color: 'white',
+    },
+    contentStyle:{
+        width: 260,
+        height: 100,
+        borderColor: 'gray',
+        borderWidth: 1,
+        borderRadius: 5
     },
 });
