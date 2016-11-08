@@ -15,6 +15,7 @@ import {
   ART,
   Linking,
   Alert,
+  Animated,
 } from 'react-native';
 
 const {
@@ -95,9 +96,19 @@ export default class DrawLayout2 extends Component {
     this.blnShowPoints = false;
     this.state={
       blnUpdate: false,
+      kbShowY: new Animated.Value(0),
     };
     this.duo = require('./SingleData/唐.json');
     this.shao = require('./SingleData/赢.json');
+    global.drawLayout = this;
+  }
+  setKBMoveY(y){
+    Animated.timing(
+      this.state.kbShowY,{
+        toValue: y,
+        delay: y === 0 ? 0 : 100,
+      },
+    ).start();
   }
   setUpdate(){
     this.setState({
@@ -119,6 +130,7 @@ export default class DrawLayout2 extends Component {
   }
   componentWillUnmount() {
     this._autoUpdate && clearInterval(this._autoUpdate);
+    global.drawLayout = null;
   }
   
   onStartShouldSetPanResponder(e, g){
@@ -162,7 +174,6 @@ export default class DrawLayout2 extends Component {
     };
   }
   autoUpdate(){
-    
   }
   showPoints(){
     this.blnShowPoints = !this.blnShowPoints;
@@ -256,7 +267,7 @@ export default class DrawLayout2 extends Component {
     //       </Text>
     //     </TouchableOpacity>
     return (
-      <View style={styles.container} pointerEvents={'box-none'}>
+      <Animated.View style={[styles.container, {marginTop: this.state.kbShowY}]} pointerEvents={'box-none'}>
         <TouchableOpacity onPress={this.openUrl.bind(this)}>
           <Text style={[styles.buttonTextStyle, {marginTop: 10}]}>
             打开网址
@@ -269,17 +280,20 @@ export default class DrawLayout2 extends Component {
         </TouchableOpacity>
         <SendSMS style={{marginTop: 10}}/>
         <SendEmail style={{marginTop: 10}}/>
-      </View>
+      </Animated.View>
     );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    position: 'absolute',
+    left: 0,
+    top: 0,
     justifyContent: 'center',
     alignItems: 'center',
     width: ScreenWidth,
+    height: ScreenHeight,
     backgroundColor: '#F5FCFF'
   },
   mouseView:{

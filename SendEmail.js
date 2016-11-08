@@ -39,14 +39,13 @@ export default class SendEmail extends Component {
             blnShowVerify: false,
             name: '快攻',
             content: '这是建议啊！建议！',
-            viewMarginTop: 0,
-            viewMailY: 10,
         };
         this.isConnected = false;
         this.tempServerData = null;
         this.keyboardShow = false;
         this.keyboardHeight = 0;
         this.focusName = '';
+        this.orgLayoutParent = null;
         this.connectServer();
     }
     setUpdate() {
@@ -74,11 +73,13 @@ export default class SendEmail extends Component {
     }
     _keyboardDidShow () {
         this.keyboardShow = true;
+        this.changeMarginTop();
         // alert('Keyboard Shown');
     }
 
     _keyboardDidHide () {
         this.keyboardShow = false;
+        drawLayout.setKBMoveY(0);
         // alert('Keyboard Hidden');
     }
     connectServer() {
@@ -360,32 +361,66 @@ export default class SendEmail extends Component {
             }
         }
     }
-    onBlurSuggest(event){
-        console.log(event.nativeEvent);
-        if (this.keyboardShow){
-            // console.log(111);
+    onLayoutParent(event){
+        if (this.orgLayoutParent == null){
+            this.orgLayoutParent = event.nativeEvent.layout;
         }
+    }
+    onLayoutName(event){
+        this.layoutName = event.nativeEvent.layout;
+    }
+    onLayoutSuggest(event){
+        this.layoutSuggest = event.nativeEvent.layout;
     }
     onLayoutMail(event){
         this.layoutMail = event.nativeEvent.layout;
+    }
+    onLayoutMailVerify(event){
+        this.layoutMailVerify = event.nativeEvent.layout;
+    }
+    onFocusName(event){
+        this.focusName = 'name';
+        this.changeMarginTop();
+    }
+    onFocusSuggest(event){
+        this.focusName = 'suggest';
+        this.changeMarginTop();
     }
     onFocusMail(event){
         this.focusName = 'mail';
         this.changeMarginTop();
     }
     onSubmitMail(){
-        this.setState({
-            viewMailY: 10
-        });
+        // drawLayout.setKBMoveY(0);
+    }
+    onFocusMailVerify(event){
+        this.focusName = 'mailverify';
+        this.changeMarginTop();
+    }
+    onSubmitMailVerify(){
+        // drawLayout.setKBMoveY(0);
     }
     changeMarginTop(){
+        var layout = null;
         if (this.focusName == 'mail'){
-            if (this.layoutMail.y + this.layoutMail.height < this.keyboardHeight){
-                this.setState({
-                    viewMailY: - (this.keyboardHeight - (this.layoutMail.y + this.layoutMail.height))
-                });
-            }
+            layout = this.layoutMail;
+        }else if (this.focusName == 'mailverify'){
+            layout = this.layoutMailVerify;
+        }else if (this.focusName == 'suggest'){
+            layout = this.layoutSuggest;
+        }else if (this.focusName == 'name'){
+            layout = this.layoutName;
         }
+        if (layout && this.orgLayoutParent.y + layout.y + layout.height > ScreenHeight - this.keyboardHeight){
+            drawLayout.setKBMoveY(-(this.orgLayoutParent.y + layout.y + layout.height - ScreenHeight + this.keyboardHeight + 5));
+        }else{
+            drawLayout.setKBMoveY(0);
+        }
+        // if (layout && this.orgLayoutParent.y + layout.y + layout.height > ScreenHeight / 2){
+        //     drawLayout.setKBMoveY(-(this.orgLayoutParent.y + layout.y + layout.height - ScreenHeight / 2));
+        // }else{
+        //     drawLayout.setKBMoveY(0);
+        // }
     }
     getKBHeight(){
         if (this.keyboardHeight == 0){
@@ -398,12 +433,13 @@ export default class SendEmail extends Component {
     }
     render() {
         return (
-            <View style={[styles.container, this.props.style ? this.props.style : {}, {marginTop: this.state.viewMarginTop}]}>
-                <View style={styles.viewStyle}>
+            <View style={[styles.container, this.props.style ? this.props.style : {}]} onLayout={this.onLayoutParent.bind(this)}>
+                <View style={styles.viewStyle} onLayout={this.onLayoutName.bind(this)}>
                     <TextInput style={styles.textInputStyle}
                         onChangeText={this.onChangeName.bind(this)}
                         value={this.state.name}
-                        placeholder={'请输入名字'} />
+                        placeholder={'请输入名字'}
+                        onFocus={this.onFocusName.bind(this)} />
                     <TouchableOpacity onPress={this.onSubmitPut.bind(this)}>
                         <View style={[styles.sendButtonView, {}]}>
                             <Text style={styles.sendButtonText}>
@@ -412,15 +448,15 @@ export default class SendEmail extends Component {
                         </View>
                     </TouchableOpacity>
                 </View>
-                <View style={[styles.viewStyle, {marginTop: 2}]}>
+                <View style={[styles.viewStyle, {marginTop: 2}]} onLayout={this.onLayoutSuggest.bind(this)}>
                     <TextInput style={styles.contentStyle}
                         onChangeText={this.onChangeContent.bind(this)}
                         value={this.state.content}
                         placeholder={'请输入建议'}
                         multiline={true}
-                        onBlur={this.onBlurSuggest.bind(this)} />
+                        onFocus={this.onFocusSuggest.bind(this)} />
                 </View>
-                <View style={[styles.viewStyle, {marginTop: this.state.viewMailY}]} onLayout={this.onLayoutMail.bind(this)}>
+                <View style={[styles.viewStyle, {marginTop: 10}]} onLayout={this.onLayoutMail.bind(this)}>
                     <TextInput style={styles.textInputStyle}
                         onChangeText={this.onTextChange.bind(this)}
                         value={this.state.emailPath}
@@ -436,11 +472,13 @@ export default class SendEmail extends Component {
                     </TouchableOpacity>
                 </View>
                 {!this.state.blnShowVerify ? null : 
-                    <View style={[styles.viewStyle, {marginTop: 5}]}>
+                    <View style={[styles.viewStyle, {marginTop: 5}]} onLayout={this.onLayoutMailVerify.bind(this)}>
                         <TextInput style={styles.textInputStyle}
                             onChangeText={this.onChangeVerifyCode.bind(this)}
                             value={this.state.verifyCode}
-                            placeholder={'请输入验证码'}/>
+                            placeholder={'请输入验证码'}
+                            onFocus={this.onFocusMailVerify.bind(this)}
+                            onSubmitEditing={this.onSubmitMailVerify.bind(this)}/>
                         <TouchableOpacity onPress={this.onSubmitOK.bind(this)}>
                             <View style={[styles.sendButtonView, {}]}>
                                 <Text style={styles.sendButtonText}>
