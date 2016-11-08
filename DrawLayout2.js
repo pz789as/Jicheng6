@@ -83,6 +83,8 @@ let data = [
   // 'M 655 601 L 663 611 L 676 626 L 689 642 L 702 657 L 710 667',
 ];
 
+import KeyboardSpacer from 'react-native-keyboard-spacer';
+
 export default class DrawLayout2 extends Component {
   constructor(props){
     super(props);

@@ -34,6 +34,7 @@
 		900642A31DCC757D00658983 /* libstdc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 900642A21DCC757D00658983 /* libstdc++.tbd */; };
 		900642A61DCC783700658983 /* SendSMS.m in Sources */ = {isa = PBXBuildFile; fileRef = 900642A51DCC783700658983 /* SendSMS.m */; };
 		908B78BE1D8E292800FD45A9 /* libART.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 908B78B31D8E291A00FD45A9 /* libART.a */; };
+		90FE798C1DD063C900117243 /* KeyboardHeight.m in Sources */ = {isa = PBXBuildFile; fileRef = 90FE798B1DD063C900117243 /* KeyboardHeight.m */; };
 		E0E21E0A99394C9C8977D53A /* libRNMail.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B6E28A39CF794D4784010CC9 /* libRNMail.a */; };
 /* End PBXBuildFile section */
 
@@ -174,6 +175,8 @@
 		900642A41DCC783700658983 /* SendSMS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SendSMS.h; path = Jicheng6/SendSMS.h; sourceTree = "<group>"; };
 		900642A51DCC783700658983 /* SendSMS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SendSMS.m; path = Jicheng6/SendSMS.m; sourceTree = "<group>"; };
 		908B78AE1D8E291A00FD45A9 /* ART.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ART.xcodeproj; path = "../node_modules/react-native/Libraries/ART/ART.xcodeproj"; sourceTree = "<group>"; };
+		90FE798A1DD063C800117243 /* KeyboardHeight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeyboardHeight.h; path = Jicheng6/KeyboardHeight.h; sourceTree = "<group>"; };
+		90FE798B1DD063C900117243 /* KeyboardHeight.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KeyboardHeight.m; path = Jicheng6/KeyboardHeight.m; sourceTree = "<group>"; };
 		B6E28A39CF794D4784010CC9 /* libRNMail.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNMail.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -303,6 +306,8 @@
 				9006428A1DCC203A00658983 /* SendMail.m */,
 				900642A41DCC783700658983 /* SendSMS.h */,
 				900642A51DCC783700658983 /* SendSMS.m */,
+				90FE798A1DD063C800117243 /* KeyboardHeight.h */,
+				90FE798B1DD063C900117243 /* KeyboardHeight.m */,
 			);
 			name = Jicheng6;
 			sourceTree = "<group>";
@@ -677,6 +682,7 @@
 				900642A61DCC783700658983 /* SendSMS.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				90FE798C1DD063C900117243 /* KeyboardHeight.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

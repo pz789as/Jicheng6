@@ -15,10 +15,18 @@ import {
     TextInput,
     PixelRatio,
     Linking,
+    Keyboard,
+    NativeEventEmitter,
 } from 'react-native';
+
+var Dimensions = require('Dimensions');
+var ScreenWidth = Dimensions.get('window').width;
+var ScreenHeight = Dimensions.get('window').height;
 
 import Communications from 'react-native-communications';
 var Mailer = require('NativeModules').RNMail;
+var kbHeight = require('NativeModules').KeyboardHeight;
+const kbHeightEvt = new NativeEventEmitter(kbHeight);
 
 export default class SendEmail extends Component {
     constructor(props) {
@@ -31,9 +39,14 @@ export default class SendEmail extends Component {
             blnShowVerify: false,
             name: '快攻',
             content: '这是建议啊！建议！',
+            viewMarginTop: 0,
+            viewMailY: 10,
         };
         this.isConnected = false;
         this.tempServerData = null;
+        this.keyboardShow = false;
+        this.keyboardHeight = 0;
+        this.focusName = '';
         this.connectServer();
     }
     setUpdate() {
@@ -41,11 +54,32 @@ export default class SendEmail extends Component {
             blnUpdate: !this.blnUpdate,
         });
     }
+    componentWillMount() {
+        this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow.bind(this));
+        this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide.bind(this));
+        this.heightChanged = kbHeightEvt.addListener('heightChanged', this._heightChanged.bind(this));
+    }
     componentDidMount() {
 
     }
     componentWillUnmount() {
+        this.keyboardDidShowListener.remove();
+        this.keyboardDidHideListener.remove();
+        this.heightChanged.remove();
+    }
+    _heightChanged(data){
+        // console.log(data);
+        this.keyboardHeight = data;
+        this.changeMarginTop();
+    }
+    _keyboardDidShow () {
+        this.keyboardShow = true;
+        // alert('Keyboard Shown');
+    }
 
+    _keyboardDidHide () {
+        this.keyboardShow = false;
+        // alert('Keyboard Hidden');
     }
     connectServer() {
         this.client = new WebSocket('http://192.168.1.112:8888');
@@ -115,15 +149,49 @@ export default class SendEmail extends Component {
                     ]
                 );
             }else if (serverJson.code == 2){
+                // this.openUrl(serverJson.url);
                 Alert.alert(
                     '发送成功',
-                    '谢谢您的建议！',
+                    '谢谢您的建议！' + serverJson.url + " 可以查看你的详细内容",
                     [
-                        { text: 'OK', onPress: () => console.log('OK Pressed!') },
+                        { text: 'OK', onPress: () => this.openUrl(serverJson.url) },
+                        { text: 'Cancel', onPress: () => console.log('OK Pressed!') },
                     ]
                 );
             }
         }
+    }
+    openUrl(url){
+        // var url = 'http://www.5ying.com';
+        // Linking.openURL(url)
+        // .catch((err)=>{
+        //   console.log('An error occurred', err);
+        // });
+        Linking.canOpenURL(url)
+            .then((supported) => {
+                if (!supported) {
+                    console.log('Can\'t handle url: ' + url);
+                    Alert.alert(
+                        '提示',
+                        'Can\'t handle url: ' + url,
+                        [
+                            { text: 'OK', onPress: () => { } }
+                        ]
+                    );
+                } else {
+                    return Linking.openURL(url);
+                }
+            })
+            .catch((err) => {
+                console.log('An error occurred', err);
+                Alert.alert(
+                    '提示',
+                    'An error occurred: ' + err,
+                    [
+                        { text: 'OK', onPress: () => { } }
+                    ]
+                );
+            });
     }
     onTextChange(text) {
         this.setState({
@@ -292,9 +360,45 @@ export default class SendEmail extends Component {
             }
         }
     }
+    onBlurSuggest(event){
+        console.log(event.nativeEvent);
+        if (this.keyboardShow){
+            // console.log(111);
+        }
+    }
+    onLayoutMail(event){
+        this.layoutMail = event.nativeEvent.layout;
+    }
+    onFocusMail(event){
+        this.focusName = 'mail';
+        this.changeMarginTop();
+    }
+    onSubmitMail(){
+        this.setState({
+            viewMailY: 10
+        });
+    }
+    changeMarginTop(){
+        if (this.focusName == 'mail'){
+            if (this.layoutMail.y + this.layoutMail.height < this.keyboardHeight){
+                this.setState({
+                    viewMailY: - (this.keyboardHeight - (this.layoutMail.y + this.layoutMail.height))
+                });
+            }
+        }
+    }
+    getKBHeight(){
+        if (this.keyboardHeight == 0){
+            var self = this;
+            kbHeight.getKBHeight().then(result=>{
+                console.log('keyboard height:' + result);
+                self.keyboardHeight = result;
+            });
+        }
+    }
     render() {
         return (
-            <View style={[styles.container, this.props.style ? this.props.style : {}]}>
+            <View style={[styles.container, this.props.style ? this.props.style : {}, {marginTop: this.state.viewMarginTop}]}>
                 <View style={styles.viewStyle}>
                     <TextInput style={styles.textInputStyle}
                         onChangeText={this.onChangeName.bind(this)}
@@ -313,14 +417,16 @@ export default class SendEmail extends Component {
                         onChangeText={this.onChangeContent.bind(this)}
                         value={this.state.content}
                         placeholder={'请输入建议'}
-                        multiline={true} />
+                        multiline={true}
+                        onBlur={this.onBlurSuggest.bind(this)} />
                 </View>
-                <View style={[styles.viewStyle, {marginTop: 10}]}>
+                <View style={[styles.viewStyle, {marginTop: this.state.viewMailY}]} onLayout={this.onLayoutMail.bind(this)}>
                     <TextInput style={styles.textInputStyle}
                         onChangeText={this.onTextChange.bind(this)}
                         value={this.state.emailPath}
                         placeholder={'请输入邮箱'}
-                        onSubmitEditing={this.onSubmitSend.bind(this)} />
+                        onFocus={this.onFocusMail.bind(this)}
+                        onSubmitEditing={this.onSubmitMail.bind(this)}/>
                     <TouchableOpacity onPress={this.onSubmitSend.bind(this)}>
                         <View style={[styles.sendButtonView, {}]}>
                             <Text style={styles.sendButtonText}>
@@ -334,8 +440,7 @@ export default class SendEmail extends Component {
                         <TextInput style={styles.textInputStyle}
                             onChangeText={this.onChangeVerifyCode.bind(this)}
                             value={this.state.verifyCode}
-                            placeholder={'请输入验证码'}
-                            onSubmitEditing={this.onSubmitOK.bind(this)} />
+                            placeholder={'请输入验证码'}/>
                         <TouchableOpacity onPress={this.onSubmitOK.bind(this)}>
                             <View style={[styles.sendButtonView, {}]}>
                                 <Text style={styles.sendButtonText}>
