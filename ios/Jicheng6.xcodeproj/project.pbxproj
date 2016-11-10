@@ -33,6 +33,26 @@
 		900642A11DCC757600658983 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 900642A01DCC757600658983 /* JavaScriptCore.framework */; };
 		900642A31DCC757D00658983 /* libstdc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 900642A21DCC757D00658983 /* libstdc++.tbd */; };
 		900642A61DCC783700658983 /* SendSMS.m in Sources */ = {isa = PBXBuildFile; fileRef = 900642A51DCC783700658983 /* SendSMS.m */; };
+		900F19AB1DD43A74005CD3A0 /* OpenShare+Alipay.m in Sources */ = {isa = PBXBuildFile; fileRef = 900F199D1DD43A74005CD3A0 /* OpenShare+Alipay.m */; };
+		900F19AC1DD43A74005CD3A0 /* OpenShare+QQ.m in Sources */ = {isa = PBXBuildFile; fileRef = 900F199F1DD43A74005CD3A0 /* OpenShare+QQ.m */; };
+		900F19AD1DD43A74005CD3A0 /* OpenShare+Renren.m in Sources */ = {isa = PBXBuildFile; fileRef = 900F19A11DD43A74005CD3A0 /* OpenShare+Renren.m */; };
+		900F19AE1DD43A74005CD3A0 /* OpenShare+Weibo.m in Sources */ = {isa = PBXBuildFile; fileRef = 900F19A31DD43A74005CD3A0 /* OpenShare+Weibo.m */; };
+		900F19AF1DD43A74005CD3A0 /* OpenShare+Weixin.m in Sources */ = {isa = PBXBuildFile; fileRef = 900F19A51DD43A74005CD3A0 /* OpenShare+Weixin.m */; };
+		900F19B01DD43A74005CD3A0 /* OpenShare.m in Sources */ = {isa = PBXBuildFile; fileRef = 900F19A71DD43A74005CD3A0 /* OpenShare.m */; };
+		900F19B11DD43A74005CD3A0 /* SocietyLoginManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 900F19AA1DD43A74005CD3A0 /* SocietyLoginManager.m */; };
+		900F19B61DD44009005CD3A0 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 900F19B51DD44009005CD3A0 /* FBSDKLoginKit.framework */; };
+		900F19B81DD44115005CD3A0 /* Bolts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 900F19B71DD44115005CD3A0 /* Bolts.framework */; };
+		900F19BA1DD4412F005CD3A0 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 900F19B91DD4412F005CD3A0 /* FBSDKCoreKit.framework */; };
+		900F19BC1DD44152005CD3A0 /* FBSDKShareKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 900F19BB1DD44152005CD3A0 /* FBSDKShareKit.framework */; };
+		900F19E31DD4466C005CD3A0 /* RCTFBViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 900F19E21DD4466C005CD3A0 /* RCTFBViewManager.m */; };
+		900F19E61DD44D4E005CD3A0 /* RCTFBView.m in Sources */ = {isa = PBXBuildFile; fileRef = 900F19E51DD44D4E005CD3A0 /* RCTFBView.m */; };
+		900F19EB1DD44F75005CD3A0 /* libc++abi.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 900F19EA1DD44F75005CD3A0 /* libc++abi.tbd */; };
+		9066178E1DD30102009513D3 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9066178D1DD30102009513D3 /* Security.framework */; };
+		906617901DD30112009513D3 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9066178F1DD30112009513D3 /* libiconv.tbd */; };
+		906617921DD30118009513D3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 906617911DD30118009513D3 /* SystemConfiguration.framework */; };
+		906617941DD3011F009513D3 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 906617931DD3011F009513D3 /* CoreGraphics.framework */; };
+		906617961DD30128009513D3 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 906617951DD30128009513D3 /* libsqlite3.tbd */; };
+		906617981DD30130009513D3 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 906617971DD30130009513D3 /* CoreTelephony.framework */; };
 		908B78BE1D8E292800FD45A9 /* libART.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 908B78B31D8E291A00FD45A9 /* libART.a */; };
 		90FE798C1DD063C900117243 /* KeyboardHeight.m in Sources */ = {isa = PBXBuildFile; fileRef = 90FE798B1DD063C900117243 /* KeyboardHeight.m */; };
 		E0E21E0A99394C9C8977D53A /* libRNMail.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B6E28A39CF794D4784010CC9 /* libRNMail.a */; };
@@ -174,6 +194,37 @@
 		900642A21DCC757D00658983 /* libstdc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.tbd"; path = "usr/lib/libstdc++.tbd"; sourceTree = SDKROOT; };
 		900642A41DCC783700658983 /* SendSMS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SendSMS.h; path = Jicheng6/SendSMS.h; sourceTree = "<group>"; };
 		900642A51DCC783700658983 /* SendSMS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SendSMS.m; path = Jicheng6/SendSMS.m; sourceTree = "<group>"; };
+		900F199C1DD43A74005CD3A0 /* OpenShare+Alipay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OpenShare+Alipay.h"; sourceTree = "<group>"; };
+		900F199D1DD43A74005CD3A0 /* OpenShare+Alipay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OpenShare+Alipay.m"; sourceTree = "<group>"; };
+		900F199E1DD43A74005CD3A0 /* OpenShare+QQ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OpenShare+QQ.h"; sourceTree = "<group>"; };
+		900F199F1DD43A74005CD3A0 /* OpenShare+QQ.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OpenShare+QQ.m"; sourceTree = "<group>"; };
+		900F19A01DD43A74005CD3A0 /* OpenShare+Renren.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OpenShare+Renren.h"; sourceTree = "<group>"; };
+		900F19A11DD43A74005CD3A0 /* OpenShare+Renren.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OpenShare+Renren.m"; sourceTree = "<group>"; };
+		900F19A21DD43A74005CD3A0 /* OpenShare+Weibo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OpenShare+Weibo.h"; sourceTree = "<group>"; };
+		900F19A31DD43A74005CD3A0 /* OpenShare+Weibo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OpenShare+Weibo.m"; sourceTree = "<group>"; };
+		900F19A41DD43A74005CD3A0 /* OpenShare+Weixin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OpenShare+Weixin.h"; sourceTree = "<group>"; };
+		900F19A51DD43A74005CD3A0 /* OpenShare+Weixin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OpenShare+Weixin.m"; sourceTree = "<group>"; };
+		900F19A61DD43A74005CD3A0 /* OpenShare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenShare.h; sourceTree = "<group>"; };
+		900F19A71DD43A74005CD3A0 /* OpenShare.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenShare.m; sourceTree = "<group>"; };
+		900F19A81DD43A74005CD3A0 /* OpenShareHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenShareHeader.h; sourceTree = "<group>"; };
+		900F19A91DD43A74005CD3A0 /* SocietyLoginManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocietyLoginManager.h; sourceTree = "<group>"; };
+		900F19AA1DD43A74005CD3A0 /* SocietyLoginManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SocietyLoginManager.m; sourceTree = "<group>"; };
+		900F19B51DD44009005CD3A0 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKLoginKit.framework; sourceTree = "<group>"; };
+		900F19B71DD44115005CD3A0 /* Bolts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bolts.framework; sourceTree = "<group>"; };
+		900F19B91DD4412F005CD3A0 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKCoreKit.framework; sourceTree = "<group>"; };
+		900F19BB1DD44152005CD3A0 /* FBSDKShareKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKShareKit.framework; sourceTree = "<group>"; };
+		900F19E11DD4466C005CD3A0 /* RCTFBViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCTFBViewManager.h; path = Jicheng6/RCTFBViewManager.h; sourceTree = "<group>"; };
+		900F19E21DD4466C005CD3A0 /* RCTFBViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCTFBViewManager.m; path = Jicheng6/RCTFBViewManager.m; sourceTree = "<group>"; };
+		900F19E41DD44D4E005CD3A0 /* RCTFBView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCTFBView.h; path = Jicheng6/RCTFBView.h; sourceTree = "<group>"; };
+		900F19E51DD44D4E005CD3A0 /* RCTFBView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCTFBView.m; path = Jicheng6/RCTFBView.m; sourceTree = "<group>"; };
+		900F19EA1DD44F75005CD3A0 /* libc++abi.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++abi.tbd"; path = "usr/lib/libc++abi.tbd"; sourceTree = SDKROOT; };
+		9066178D1DD30102009513D3 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		9066178F1DD30112009513D3 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
+		906617911DD30118009513D3 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		906617931DD3011F009513D3 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		906617951DD30128009513D3 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		906617971DD30130009513D3 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		906617991DD3013D009513D3 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		908B78AE1D8E291A00FD45A9 /* ART.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ART.xcodeproj; path = "../node_modules/react-native/Libraries/ART/ART.xcodeproj"; sourceTree = "<group>"; };
 		90FE798A1DD063C800117243 /* KeyboardHeight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeyboardHeight.h; path = Jicheng6/KeyboardHeight.h; sourceTree = "<group>"; };
 		90FE798B1DD063C900117243 /* KeyboardHeight.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KeyboardHeight.m; path = Jicheng6/KeyboardHeight.m; sourceTree = "<group>"; };
@@ -193,11 +244,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				900F19EB1DD44F75005CD3A0 /* libc++abi.tbd in Frameworks */,
+				906617981DD30130009513D3 /* CoreTelephony.framework in Frameworks */,
+				906617961DD30128009513D3 /* libsqlite3.tbd in Frameworks */,
+				900F19BC1DD44152005CD3A0 /* FBSDKShareKit.framework in Frameworks */,
+				900F19BA1DD4412F005CD3A0 /* FBSDKCoreKit.framework in Frameworks */,
+				906617941DD3011F009513D3 /* CoreGraphics.framework in Frameworks */,
+				906617921DD30118009513D3 /* SystemConfiguration.framework in Frameworks */,
+				906617901DD30112009513D3 /* libiconv.tbd in Frameworks */,
+				9066178E1DD30102009513D3 /* Security.framework in Frameworks */,
 				900642A31DCC757D00658983 /* libstdc++.tbd in Frameworks */,
 				900642A11DCC757600658983 /* JavaScriptCore.framework in Frameworks */,
 				9006429F1DCC756F00658983 /* MessageUI.framework in Frameworks */,
 				9006429D1DCC756900658983 /* libicucore.tbd in Frameworks */,
 				9006429B1DCC755D00658983 /* libz.tbd in Frameworks */,
+				900F19B61DD44009005CD3A0 /* FBSDKLoginKit.framework in Frameworks */,
 				908B78BE1D8E292800FD45A9 /* libART.a in Frameworks */,
 				900642971DCC753400658983 /* MOBFoundation.framework in Frameworks */,
 				146834051AC3E58100842450 /* libReact.a in Frameworks */,
@@ -213,6 +274,7 @@
 				900642991DCC753400658983 /* SMS_SDK.framework in Frameworks */,
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
 				E0E21E0A99394C9C8977D53A /* libRNMail.a in Frameworks */,
+				900F19B81DD44115005CD3A0 /* Bolts.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -308,6 +370,10 @@
 				900642A51DCC783700658983 /* SendSMS.m */,
 				90FE798A1DD063C800117243 /* KeyboardHeight.h */,
 				90FE798B1DD063C900117243 /* KeyboardHeight.m */,
+				900F19E41DD44D4E005CD3A0 /* RCTFBView.h */,
+				900F19E51DD44D4E005CD3A0 /* RCTFBView.m */,
+				900F19E11DD4466C005CD3A0 /* RCTFBViewManager.h */,
+				900F19E21DD4466C005CD3A0 /* RCTFBViewManager.m */,
 			);
 			name = Jicheng6;
 			sourceTree = "<group>";
@@ -358,11 +424,8 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				900642A21DCC757D00658983 /* libstdc++.tbd */,
-				900642A01DCC757600658983 /* JavaScriptCore.framework */,
-				9006429E1DCC756F00658983 /* MessageUI.framework */,
-				9006429C1DCC756900658983 /* libicucore.tbd */,
-				9006429A1DCC755D00658983 /* libz.tbd */,
+				900F199A1DD43A50005CD3A0 /* OpenShare */,
+				9066177D1DD30081009513D3 /* Frameworks */,
 				900642931DCC753400658983 /* SMS_SDK */,
 				13B07FAE1A68108700A75B9A /* Jicheng6 */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -390,6 +453,61 @@
 				900642961DCC753400658983 /* SMS_SDK.framework */,
 			);
 			path = SMS_SDK;
+			sourceTree = "<group>";
+		};
+		900F199A1DD43A50005CD3A0 /* OpenShare */ = {
+			isa = PBXGroup;
+			children = (
+				900F199B1DD43A74005CD3A0 /* src */,
+			);
+			name = OpenShare;
+			sourceTree = "<group>";
+		};
+		900F199B1DD43A74005CD3A0 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				900F199C1DD43A74005CD3A0 /* OpenShare+Alipay.h */,
+				900F199D1DD43A74005CD3A0 /* OpenShare+Alipay.m */,
+				900F199E1DD43A74005CD3A0 /* OpenShare+QQ.h */,
+				900F199F1DD43A74005CD3A0 /* OpenShare+QQ.m */,
+				900F19A01DD43A74005CD3A0 /* OpenShare+Renren.h */,
+				900F19A11DD43A74005CD3A0 /* OpenShare+Renren.m */,
+				900F19A21DD43A74005CD3A0 /* OpenShare+Weibo.h */,
+				900F19A31DD43A74005CD3A0 /* OpenShare+Weibo.m */,
+				900F19A41DD43A74005CD3A0 /* OpenShare+Weixin.h */,
+				900F19A51DD43A74005CD3A0 /* OpenShare+Weixin.m */,
+				900F19A61DD43A74005CD3A0 /* OpenShare.h */,
+				900F19A71DD43A74005CD3A0 /* OpenShare.m */,
+				900F19A81DD43A74005CD3A0 /* OpenShareHeader.h */,
+				900F19A91DD43A74005CD3A0 /* SocietyLoginManager.h */,
+				900F19AA1DD43A74005CD3A0 /* SocietyLoginManager.m */,
+			);
+			name = src;
+			path = "../node_modules/react-native-open-share/src";
+			sourceTree = "<group>";
+		};
+		9066177D1DD30081009513D3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				900F19EA1DD44F75005CD3A0 /* libc++abi.tbd */,
+				900F19BB1DD44152005CD3A0 /* FBSDKShareKit.framework */,
+				900F19B71DD44115005CD3A0 /* Bolts.framework */,
+				900F19B91DD4412F005CD3A0 /* FBSDKCoreKit.framework */,
+				900F19B51DD44009005CD3A0 /* FBSDKLoginKit.framework */,
+				906617991DD3013D009513D3 /* libc++.tbd */,
+				906617971DD30130009513D3 /* CoreTelephony.framework */,
+				906617951DD30128009513D3 /* libsqlite3.tbd */,
+				906617931DD3011F009513D3 /* CoreGraphics.framework */,
+				906617911DD30118009513D3 /* SystemConfiguration.framework */,
+				9066178F1DD30112009513D3 /* libiconv.tbd */,
+				9066178D1DD30102009513D3 /* Security.framework */,
+				9006429A1DCC755D00658983 /* libz.tbd */,
+				9006429C1DCC756900658983 /* libicucore.tbd */,
+				9006429E1DCC756F00658983 /* MessageUI.framework */,
+				900642A01DCC757600658983 /* JavaScriptCore.framework */,
+				900642A21DCC757D00658983 /* libstdc++.tbd */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		908B78AF1D8E291A00FD45A9 /* Products */ = {
@@ -680,9 +798,18 @@
 			files = (
 				9006428B1DCC203A00658983 /* SendMail.m in Sources */,
 				900642A61DCC783700658983 /* SendSMS.m in Sources */,
+				900F19E31DD4466C005CD3A0 /* RCTFBViewManager.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
+				900F19E61DD44D4E005CD3A0 /* RCTFBView.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				900F19AE1DD43A74005CD3A0 /* OpenShare+Weibo.m in Sources */,
+				900F19AF1DD43A74005CD3A0 /* OpenShare+Weixin.m in Sources */,
+				900F19AC1DD43A74005CD3A0 /* OpenShare+QQ.m in Sources */,
 				90FE798C1DD063C900117243 /* KeyboardHeight.m in Sources */,
+				900F19B11DD43A74005CD3A0 /* SocietyLoginManager.m in Sources */,
+				900F19AB1DD43A74005CD3A0 /* OpenShare+Alipay.m in Sources */,
+				900F19B01DD43A74005CD3A0 /* OpenShare.m in Sources */,
+				900F19AD1DD43A74005CD3A0 /* OpenShare+Renren.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -755,6 +882,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/SMS_SDK",
+					"$(PROJECT_DIR)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -772,7 +900,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.gjc.Jicheng6;
 				PRODUCT_NAME = Jicheng6;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -784,6 +912,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/SMS_SDK",
+					"$(PROJECT_DIR)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -801,7 +930,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.gjc.Jicheng6;
 				PRODUCT_NAME = Jicheng6;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

@@ -10,6 +10,7 @@
     "react-native": "^0.33.0",
     "react-native-communications": "^2.1.3",
     "react-native-keyboard-spacer": "^0.3.0",
-    "react-native-mail": "^2.0.0"
+    "react-native-mail": "^2.0.0",
+    "react-native-open-share": "git+https://github.com/mozillo/react-native-open-share.git"
   }
 }

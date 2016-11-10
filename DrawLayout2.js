@@ -36,6 +36,7 @@ import DrawWord from './DrawWord2';
 import DrawTouch from './DrawTouch2';
 import SendSMS from './SendSMS';
 import SendEmail from './SendEmail';
+import FBView from './FBView';
 
 let cv = {
   status_norm: 0,
@@ -280,6 +281,7 @@ export default class DrawLayout2 extends Component {
         </TouchableOpacity>
         <SendSMS style={{marginTop: 10}}/>
         <SendEmail style={{marginTop: 10}}/>
+        <FBView style={{width: 200, height: 60, marginTop: 10}}/>
       </Animated.View>
     );
   }

@@ -175,6 +175,7 @@ export default class SendSMS extends Component {
                     <TextInput style={styles.textInputStyle}
                         onChangeText={this.onTextChange.bind(this)}
                         value={this.state.phoneNumber}
+                        keyboardType={'numeric'}
                         placeholder={'请输入手机号'}/>
                     <TouchableOpacity onPress={this.onSubmitSend.bind(this)}>
                         <View style={[styles.sendButtonView, {}]}>
@@ -189,6 +190,7 @@ export default class SendSMS extends Component {
                         <TextInput style={styles.textInputStyle}
                             onChangeText={this.onChangeVerify.bind(this)}
                             value={this.state.verifyCode}
+                            keyboardType={'numeric'}
                             placeholder={'请输入验证码'}/>
                         <TouchableOpacity onPress={this.onSubmitOK.bind(this)}>
                             <View style={[styles.sendButtonView, {}]}>

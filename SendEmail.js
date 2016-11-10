@@ -439,6 +439,7 @@ export default class SendEmail extends Component {
                         onChangeText={this.onChangeName.bind(this)}
                         value={this.state.name}
                         placeholder={'请输入名字'}
+                        keyboardType={'default'}
                         onFocus={this.onFocusName.bind(this)} />
                     <TouchableOpacity onPress={this.onSubmitPut.bind(this)}>
                         <View style={[styles.sendButtonView, {}]}>
@@ -453,6 +454,7 @@ export default class SendEmail extends Component {
                         onChangeText={this.onChangeContent.bind(this)}
                         value={this.state.content}
                         placeholder={'请输入建议'}
+                        keyboardType={'default'}
                         multiline={true}
                         onFocus={this.onFocusSuggest.bind(this)} />
                 </View>
@@ -461,6 +463,7 @@ export default class SendEmail extends Component {
                         onChangeText={this.onTextChange.bind(this)}
                         value={this.state.emailPath}
                         placeholder={'请输入邮箱'}
+                        keyboardType={'email-address'}
                         onFocus={this.onFocusMail.bind(this)}
                         onSubmitEditing={this.onSubmitMail.bind(this)}/>
                     <TouchableOpacity onPress={this.onSubmitSend.bind(this)}>
@@ -477,6 +480,7 @@ export default class SendEmail extends Component {
                             onChangeText={this.onChangeVerifyCode.bind(this)}
                             value={this.state.verifyCode}
                             placeholder={'请输入验证码'}
+                            keyboardType={'numeric'}
                             onFocus={this.onFocusMailVerify.bind(this)}
                             onSubmitEditing={this.onSubmitMailVerify.bind(this)}/>
                         <TouchableOpacity onPress={this.onSubmitOK.bind(this)}>
