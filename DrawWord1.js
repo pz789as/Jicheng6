@@ -45,8 +45,6 @@ export default class DrawWord1 extends Component {
   initWord(data){
     this.data = data;
     this.drawIdx = -1;
-    this.Offx = 0;
-    this.Offy = 0;
     this.minDisStart = Number.MAX_VALUE;
     this.minDisEnd = Number.MAX_VALUE;
     this.startIdx = -1;
