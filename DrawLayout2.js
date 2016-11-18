@@ -187,7 +187,7 @@ export default class DrawLayout2 extends Component {
     }
   }
   openUrl(){
-    var url = 'http://www.5ying1ss.cm';
+    var url = 'http://www.5ying.cm';
     // Linking.openURL(url)
     // .catch((err)=>{
     //   console.log('An error occurred', err);
